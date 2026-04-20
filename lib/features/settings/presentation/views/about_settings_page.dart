@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import '../../../../utils/toast_utils.dart';
+import '../../../../core/services/feedback_service.dart';
+import '../widgets/dialogs/feedback_dialog.dart';
+import '../widgets/dialogs/update_dialog.dart';
 
 class AboutSettingsPage extends StatefulWidget {
   const AboutSettingsPage({super.key});
@@ -10,6 +14,8 @@ class AboutSettingsPage extends StatefulWidget {
 }
 
 class _AboutSettingsPageState extends State<AboutSettingsPage> {
+  final FeedbackService _feedbackService = FeedbackService();
+  bool _isCheckingUpdate = false;
 
   // 🌟 模拟网页跳转逻辑 (实际项目中可替换为 url_launcher)
   void _launchUrl(String url, String title) {
@@ -27,8 +33,19 @@ class _AboutSettingsPageState extends State<AboutSettingsPage> {
     );
   }
 
+  // 🌟 显示反馈对话框
+  void _showFeedbackDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => const FeedbackDialog(),
+    );
+  }
+
   // 🌟 检查更新交互
   Future<void> _checkForUpdates() async {
+    if (_isCheckingUpdate) return;
+    setState(() => _isCheckingUpdate = true);
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -43,21 +60,48 @@ class _AboutSettingsPageState extends State<AboutSettingsPage> {
         ),
       ),
     );
-    await Future.delayed(const Duration(milliseconds: 1200));
-    if (!mounted) return;
-    Navigator.pop(context);
 
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('已是最新版本', style: TextStyle(fontWeight: FontWeight.bold)),
-        content: const Text('当前版本 NoteSync v2.2.0 已是最新。'),
-        actions: [
-          FilledButton.tonal(onPressed: () => Navigator.pop(ctx), child: const Text('我知道了')),
-        ],
-      ),
-    );
+    try {
+      final updateInfo = await _feedbackService.checkForUpdate();
+      
+      if (!mounted) return;
+      Navigator.pop(context); // 关闭 loading
+
+      if (updateInfo != null) {
+        // 有新版本
+        showDialog(
+          context: context,
+          builder: (ctx) => UpdateDialog(updateInfo: updateInfo),
+        );
+      } else {
+        // 已是最新
+        final packageInfo = await PackageInfo.fromPlatform();
+        if (!mounted) return;
+        showDialog(
+          context: context,
+          builder: (ctx) => NoUpdateDialog(currentVersion: packageInfo.version),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.pop(context); // 关闭 loading
+      
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: const Text('检查失败', style: TextStyle(fontWeight: FontWeight.bold)),
+          content: const Text('无法连接到更新服务器，请检查网络后重试。'),
+          actions: [
+            FilledButton.tonal(onPressed: () => Navigator.pop(ctx), child: const Text('知道了')),
+          ],
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isCheckingUpdate = false);
+      }
+    }
   }
 
   // 🌟 通用文档展示面板 (用于展示更新日志、隐私协议)
@@ -142,7 +186,7 @@ class _AboutSettingsPageState extends State<AboutSettingsPage> {
             _buildDivider(theme),
             _buildMenuRow(theme, icon: Icons.assignment_outlined, title: '更新说明', onTap: () => _showScrollableSheet('更新日志', 'v2.2.0 更新内容：\n\n• [优化] 全新设计的设置界面与统计面板\n• [修复] 解决 WebDAV 在特定环境下同步失败的问题\n• [新增] 笔记冗余图片一键清理功能\n• [美化] 完善了全平台的悬停与点击反馈')),
             _buildDivider(theme),
-            _buildMenuRow(theme, icon: Icons.forum_outlined, title: '反馈建议', isExternal: true, onTap: () => _launchUrl('https://feedback.notesync.com', '反馈中心')),
+            _buildMenuRow(theme, icon: Icons.forum_outlined, title: '反馈建议', onTap: _showFeedbackDialog),
             _buildDivider(theme),
             _buildMenuRow(theme, icon: Icons.language_rounded, title: '官方网站', isExternal: true, onTap: () => _launchUrl('https://www.notesync.com', '官方主页')),
           ]),
