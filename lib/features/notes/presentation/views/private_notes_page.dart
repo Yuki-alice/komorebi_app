@@ -500,7 +500,7 @@ class _PrivateNotesPageState extends State<PrivateNotesPage> with WidgetsBinding
           return RefreshIndicator(
             onRefresh: () async {
               HapticFeedback.mediumImpact();
-              await context.read<NotesProvider>().syncWithCloud();
+              await context.read<NotesProvider>().syncWithCloud(context: context);
             },
             child: scrollView,
           );
@@ -563,7 +563,7 @@ class _PrivateNotesPageState extends State<PrivateNotesPage> with WidgetsBinding
               _SyncStatusIndicator(),
               IconButton(
                 onPressed: () async {
-                  await context.read<NotesProvider>().syncWithCloud();
+                  await context.read<NotesProvider>().syncWithCloud(context: context);
                   if (context.mounted) ToastUtils.showSuccess(context, '已与云端同步最新数据');
                 },
                 icon: const Icon(Icons.sync_rounded, size: 22),
