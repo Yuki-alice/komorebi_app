@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../models/user_quota.dart';
 import '../services/storage_quota_service.dart';
+import '../../features/settings/presentation/views/quota_settings_page.dart';
 
 /// 配额状态管理 Provider
 /// 
@@ -240,7 +241,10 @@ class QuotaProvider with ChangeNotifier {
           FilledButton(
             onPressed: () {
               Navigator.pop(context);
-              // TODO: 导航到升级页面
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const QuotaSettingsPage()),
+              );
             },
             child: const Text('立即升级'),
           ),
@@ -270,7 +274,10 @@ class QuotaProvider with ChangeNotifier {
           FilledButton(
             onPressed: () {
               Navigator.pop(context);
-              // TODO: 导航到升级页面
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const QuotaSettingsPage()),
+              );
             },
             child: const Text('升级空间'),
           ),
@@ -287,7 +294,10 @@ class QuotaProvider with ChangeNotifier {
         action: SnackBarAction(
           label: '查看',
           onPressed: () {
-            // TODO: 导航到配额管理页面
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const QuotaSettingsPage()),
+            );
           },
         ),
         duration: const Duration(seconds: 5),
