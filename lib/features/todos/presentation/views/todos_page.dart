@@ -143,7 +143,7 @@ class _TodosPageState extends State<TodosPage> {
               actions: isDesktop
                   ? [
                 IconButton.filledTonal(
-                  onPressed: () => context.read<TodosProvider>().syncWithCloud(),
+                  onPressed: () => context.read<TodosProvider>().syncWithCloud(context: context),
                   icon: const Icon(Icons.sync_rounded),
                   tooltip: "手动同步",
                   style: IconButton.styleFrom(
@@ -376,7 +376,7 @@ class _TodosPageState extends State<TodosPage> {
           return RefreshIndicator(
             onRefresh: () async {
               HapticFeedback.mediumImpact();
-              await context.read<TodosProvider>().syncWithCloud();
+              await context.read<TodosProvider>().syncWithCloud(context: context);
             },
             child: scrollView,
           );

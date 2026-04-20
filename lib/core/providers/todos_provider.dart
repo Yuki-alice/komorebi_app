@@ -67,7 +67,9 @@ class TodosProvider with ChangeNotifier, WidgetsBindingObserver {
     return prefs.getBool('isAutoSyncEnabled') ?? false;
   }
 
-  Future<void> syncWithCloud() async {
+  ///
+  /// [context] 可选，用于显示冲突对话框（目前 Todo 不使用）
+  Future<void> syncWithCloud({BuildContext? context}) async {
     // 1. 检查总闸
     if (!await _isSyncAllowed()) {
       debugPrint('⚠️ [SYNC-TODO] 云端同步已关闭，跳过本次任务');
@@ -108,15 +110,21 @@ class TodosProvider with ChangeNotifier, WidgetsBindingObserver {
       loadTodos();
 
       _setSyncState(TodoSyncState.success);
-      Future.delayed(const Duration(milliseconds: 2500), () {
-        if (_syncState == TodoSyncState.success) _setSyncState(TodoSyncState.idle);
+      // 🌟 3秒后自动恢复为 idle 状态（与笔记模块统一）
+      Future.delayed(const Duration(seconds: 3), () {
+        if (_syncState == TodoSyncState.success) {
+          _setSyncState(TodoSyncState.idle);
+        }
       });
 
     } catch (e) {
       debugPrint('❌ [SYNC-TODO] 同步引擎遭遇致命错误: $e');
       _setSyncState(TodoSyncState.error);
-      Future.delayed(const Duration(seconds: 3), () {
-        if (_syncState == TodoSyncState.error) _setSyncState(TodoSyncState.idle);
+      // 🌟 5秒后自动恢复为 idle 状态（与笔记模块统一）
+      Future.delayed(const Duration(seconds: 5), () {
+        if (_syncState == TodoSyncState.error) {
+          _setSyncState(TodoSyncState.idle);
+        }
       });
     }
   }
