@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import '../../../../utils/toast_utils.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/services/feedback_service.dart';
 import '../widgets/dialogs/feedback_dialog.dart';
 import '../widgets/dialogs/update_dialog.dart';
@@ -16,21 +16,94 @@ class AboutSettingsPage extends StatefulWidget {
 class _AboutSettingsPageState extends State<AboutSettingsPage> {
   final FeedbackService _feedbackService = FeedbackService();
   bool _isCheckingUpdate = false;
+  String _version = '加载中...';
 
-  // 🌟 模拟网页跳转逻辑 (实际项目中可替换为 url_launcher)
-  void _launchUrl(String url, String title) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text('即将跳转', style: const TextStyle(fontWeight: FontWeight.bold)),
-        content: Text('正在离开应用，前往 $title 网页：\n$url'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('取消')),
-          FilledButton.tonal(onPressed: () => Navigator.pop(ctx), child: const Text('前往')),
-        ],
-      ),
-    );
+  // 隐私政策内容
+  static const String _privacyPolicyContent = '''
+隐私政策
+
+最后更新日期：2026年4月
+
+1. 信息收集
+NoteSync 是一款注重隐私的笔记应用。我们收集的信息包括：
+• 账户信息：邮箱地址（用于登录和同步）
+• 设备信息：设备型号、操作系统版本（用于优化体验）
+• 使用数据：崩溃报告、性能数据（用于改进应用）
+
+2. 数据存储
+• 本地笔记：存储在您的设备上，完全由您控制
+• 云端同步：使用 Supabase 服务，数据加密传输和存储
+• 我们不会将您的笔记内容用于任何商业目的
+
+3. 数据安全
+• 所有云端数据传输使用 TLS 加密
+• 敏感操作需要身份验证
+• 您可以随时导出或删除您的数据
+
+4. 第三方服务
+我们使用以下第三方服务：
+• Supabase：提供云端同步和身份验证
+• 这些服务仅用于实现核心功能
+
+5. 您的权利
+• 访问、修改或删除您的个人数据
+• 随时注销账户
+• 导出您的所有数据
+
+如有疑问，请通过反馈功能联系我们。
+''';
+
+  // 用户协议内容
+  static const String _termsOfServiceContent = '''
+用户协议
+
+1. 服务说明
+NoteSync 提供本地笔记记录和云端同步服务。使用本应用即表示您同意本协议条款。
+
+2. 账户注册
+• 您需要提供有效的邮箱地址进行注册
+• 您有责任维护账户安全
+• 禁止分享账户或进行未经授权的访问
+
+3. 使用规范
+您同意不会：
+• 使用本服务进行任何非法活动
+• 上传恶意软件或病毒
+• 干扰或破坏服务的正常运行
+• 侵犯他人的知识产权
+
+4. 服务变更
+我们保留随时修改或终止服务的权利，会提前通知用户重大变更。
+
+5. 免责声明
+• 我们尽力确保服务稳定，但不保证无中断
+• 用户需自行备份重要数据
+• 因不可抗力导致的服务中断，我们不承担责任
+
+6. 协议更新
+我们可能会更新本协议，更新后会通过应用内通知您。
+
+继续使用本应用即表示您接受更新后的协议。
+''';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadVersion();
+  }
+
+  Future<void> _loadVersion() async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    setState(() {
+      _version = 'v${packageInfo.version} (Build ${packageInfo.buildNumber})';
+    });
+  }
+
+  Future<void> _launchUrl(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
   }
 
   // 🌟 显示反馈对话框
@@ -104,34 +177,162 @@ class _AboutSettingsPageState extends State<AboutSettingsPage> {
     }
   }
 
-  // 🌟 通用文档展示面板 (用于展示更新日志、隐私协议)
-  void _showScrollableSheet(String title, String content) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
-      builder: (ctx) => DraggableScrollableSheet(
-        expand: false, initialChildSize: 0.7, maxChildSize: 0.9,
-        builder: (ctx, scrollController) => Column(
-          children: [
-            const SizedBox(height: 12),
-            Container(width: 40, height: 4, decoration: BoxDecoration(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.4), borderRadius: BorderRadius.circular(2))),
-            const SizedBox(height: 20),
-            Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 16),
-            Expanded(
-              child: ListView(
-                controller: scrollController,
-                padding: const EdgeInsets.fromLTRB(24, 8, 24, 40),
+  // 🌟 法律文档展示页面
+  void _showLegalPage(String title, String content) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (ctx) => Scaffold(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          appBar: AppBar(
+            title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            centerTitle: true,
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            surfaceTintColor: Colors.transparent,
+          ),
+          body: SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 40),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(content, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.7, fontSize: 14)),
+                  // 标题区域
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      children: [
+                        Icon(
+                          title == '隐私政策' ? Icons.verified_user_rounded : Icons.description_rounded,
+                          size: 48,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          title,
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  // 内容区域
+                  _buildLegalContent(content),
                 ],
               ),
             ),
-          ],
+          ),
         ),
       ),
+    );
+  }
+
+  // 解析并渲染法律文档内容
+  Widget _buildLegalContent(String content) {
+    final lines = content.split('\n');
+    final List<Widget> widgets = [];
+
+    for (final line in lines) {
+      final trimmed = line.trim();
+      if (trimmed.isEmpty) {
+        widgets.add(const SizedBox(height: 12));
+      } else if (trimmed.startsWith('隐私政策') || trimmed.startsWith('用户协议')) {
+        // 跳过主标题，已经在顶部显示
+        continue;
+      } else if (trimmed.startsWith('最后更新日期')) {
+        widgets.add(
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              trimmed,
+              style: TextStyle(
+                fontSize: 12,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        );
+        widgets.add(const SizedBox(height: 20));
+      } else if (RegExp(r'^\d+\.').hasMatch(trimmed)) {
+        // 章节标题
+        widgets.add(
+          Padding(
+            padding: const EdgeInsets.only(top: 20, bottom: 12),
+            child: Text(
+              trimmed,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+          ),
+        );
+      } else if (trimmed.startsWith('•')) {
+        // 列表项
+        widgets.add(
+          Padding(
+            padding: const EdgeInsets.only(left: 8, bottom: 8),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(top: 8),
+                  width: 6,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    trimmed.substring(1).trim(),
+                    style: TextStyle(
+                      fontSize: 14,
+                      height: 1.6,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      } else {
+        // 普通段落
+        widgets.add(
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Text(
+              trimmed,
+              style: TextStyle(
+                fontSize: 14,
+                height: 1.7,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        );
+      }
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: widgets,
     );
   }
 
@@ -170,7 +371,7 @@ class _AboutSettingsPageState extends State<AboutSettingsPage> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5), borderRadius: BorderRadius.circular(10)),
-                  child: Text('Version 2.2.0 (Build 204)', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: theme.colorScheme.onSurfaceVariant)),
+                  child: Text(_version, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: theme.colorScheme.onSurfaceVariant)),
                 ),
               ],
             ),
@@ -184,22 +385,29 @@ class _AboutSettingsPageState extends State<AboutSettingsPage> {
           _buildGroupContainer(theme, [
             _buildMenuRow(theme, icon: Icons.update_rounded, title: '检查更新', onTap: _checkForUpdates),
             _buildDivider(theme),
-            _buildMenuRow(theme, icon: Icons.assignment_outlined, title: '更新说明', onTap: () => _showScrollableSheet('更新日志', 'v2.2.0 更新内容：\n\n• [优化] 全新设计的设置界面与统计面板\n• [修复] 解决 WebDAV 在特定环境下同步失败的问题\n• [新增] 笔记冗余图片一键清理功能\n• [美化] 完善了全平台的悬停与点击反馈')),
-            _buildDivider(theme),
             _buildMenuRow(theme, icon: Icons.forum_outlined, title: '反馈建议', onTap: _showFeedbackDialog),
-            _buildDivider(theme),
-            _buildMenuRow(theme, icon: Icons.language_rounded, title: '官方网站', isExternal: true, onTap: () => _launchUrl('https://www.notesync.com', '官方主页')),
           ]),
           const SizedBox(height: 32),
 
           // ==========================================
-          // 模块 2：关于与法律 (🌟 整合隐私协议)
+          // 模块 2：关于与法律
           // ==========================================
           _buildSectionHeader(theme, '关于与法律'),
           _buildGroupContainer(theme, [
-            _buildMenuRow(theme, icon: Icons.code_rounded, title: '开源代码 (GitHub)', isExternal: true, onTap: () => _launchUrl('https://github.com/notesync/app', 'GitHub')),
+            _buildMenuRow(theme, icon: Icons.verified_user_outlined, title: '隐私政策', onTap: () => _showLegalPage('隐私政策', _privacyPolicyContent)),
             _buildDivider(theme),
-            _buildMenuRow(theme, icon: Icons.verified_user_outlined, title: '隐私政策与用户协议', onTap: () => _showScrollableSheet('隐私政策与服务协议', '1. 隐私声明\n我们高度重视您的隐私。您的所有本地笔记均加密存储，不会上传至任何未授权的服务器。\n\n2. 服务协议\n使用本应用即代表您同意我们通过 WebDAV 或 Supabase 提供的同步服务条款...\n\n3. 数据所有权\n用户拥有对其创作内容的绝对所有权。')),
+            _buildMenuRow(theme, icon: Icons.description_outlined, title: '用户协议', onTap: () => _showLegalPage('用户协议', _termsOfServiceContent)),
+          ]),
+          const SizedBox(height: 32),
+
+          // ==========================================
+          // 模块 3：开源与社区
+          // ==========================================
+          _buildSectionHeader(theme, '开源与社区'),
+          _buildGroupContainer(theme, [
+            _buildMenuRow(theme, icon: Icons.language_rounded, title: '官方网站', isExternal: true, onTap: () => _launchUrl('https://notesync.app')),
+            _buildDivider(theme),
+            _buildMenuRow(theme, icon: Icons.code_rounded, title: 'GitHub 开源仓库', isExternal: true, onTap: () => _launchUrl('https://github.com/notesync/notesync-app')),
           ]),
           const SizedBox(height: 48),
 
