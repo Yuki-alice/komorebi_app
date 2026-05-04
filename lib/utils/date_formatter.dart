@@ -46,6 +46,10 @@ class DateFormatter {
     }
   }
 
+  static String formatRelative(DateTime dateTime) {
+    return formatRelativeTime(dateTime);
+  }
+
   static String getTimeOfDay() {
     final hour = DateTime.now().hour;
     if (hour < 6) {

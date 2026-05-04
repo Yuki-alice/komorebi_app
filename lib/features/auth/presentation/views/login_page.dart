@@ -58,11 +58,11 @@ class _LoginPageViewState extends State<_LoginPageView> {
 
     if (!mounted) return;
 
-    if (errorMsg == 'SIGNUP_SUCCESS') {
-      ToastUtils.showSuccess(context,'🎉 账号创建成功！请直接点击登录');
+     if (errorMsg == 'SIGNUP_SUCCESS') {
+      ToastUtils.showSuccess(context,'账号创建成功！请直接点击登录');
       _passwordController.clear(); // 贴心细节：注册完清空密码框让用户重输一次更安全，或者保留也可以
     } else if (errorMsg == null) {
-      ToastUtils.showSuccess(context,'✨ 登录成功，欢迎回来！');
+      ToastUtils.showSuccess(context,'登录成功，欢迎回来！');
       Navigator.pop(context); // 登录成功退出页面
     } else {
       ToastUtils.showError(context,errorMsg); // 报错
@@ -154,11 +154,35 @@ class _LoginPageViewState extends State<_LoginPageView> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(Icons.auto_awesome_rounded, size: 72, color: theme.colorScheme.primary),
-        const SizedBox(height: 20),
-        Text('NoteSync', style: GoogleFonts.quicksand(textStyle: theme.textTheme.displaySmall, fontWeight: FontWeight.w900, color: theme.colorScheme.primary, letterSpacing: 1.5)),
-        const SizedBox(height: 8),
-        Text('记录生活，捕捉星光', style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant, fontWeight: FontWeight.w600, letterSpacing: 4)),
+        // 应用图标
+        ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: Image.asset(
+            'assets/icons/komorebi_icon_source.png',
+            width: 88,
+            height: 88,
+            fit: BoxFit.cover,
+          ),
+        ),
+        const SizedBox(height: 24),
+        Text(
+          'Komorebi',
+          style: GoogleFonts.notoSans(
+            textStyle: theme.textTheme.displaySmall,
+            fontWeight: FontWeight.w900,
+            color: theme.colorScheme.primary,
+            letterSpacing: 1.5,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          '记录灵感，如光隙般自然',
+          style: theme.textTheme.titleMedium?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 2,
+          ),
+        ),
       ],
     );
   }
@@ -177,7 +201,7 @@ class _LoginPageViewState extends State<_LoginPageView> {
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 300),
             child: Text(
-              vm.isSignUp ? '开启新旅程 ✨' : '欢迎回来呀 🎈',
+              vm.isSignUp ? '开启新旅程' : '欢迎回来',
               key: ValueKey(vm.isSignUp),
               style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w900, letterSpacing: 1.2, color: theme.colorScheme.onSurface, fontSize: 28),
               textAlign: TextAlign.left,
@@ -330,15 +354,15 @@ class _ForgotPasswordSheetState extends State<ForgotPasswordSheet> {
         children: [
           Center(child: Container(width: 40, height: 5, margin: const EdgeInsets.only(bottom: 24), decoration: BoxDecoration(color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.3), borderRadius: BorderRadius.circular(10)))),
           if (_isSent) ...[
-            Icon(Icons.mark_email_read_rounded, size: 64, color: Colors.green.shade400),
+            Icon(Icons.mark_email_read_rounded, size: 64, color: theme.colorScheme.primary),
             const SizedBox(height: 16),
-            Text('魔法信件已送达 🕊️', textAlign: TextAlign.center, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+            Text('邮件已发送', textAlign: TextAlign.center, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Text('请检查你的邮箱，点击邮件内的链接即可重设密码', textAlign: TextAlign.center, style: TextStyle(color: theme.colorScheme.onSurfaceVariant)),
             const SizedBox(height: 32),
             FilledButton.tonal(onPressed: () => Navigator.pop(context), style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)), child: const Text('我知道啦')),
           ] else ...[
-            Text('找回密码 🗝️', style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+            Text('找回密码', style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Text('不用担心，输入你注册时的邮箱，我们会发一封密码重置邮件给你。', style: TextStyle(color: theme.colorScheme.onSurfaceVariant)),
             const SizedBox(height: 24),

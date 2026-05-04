@@ -231,8 +231,8 @@ class _SyncSettingsPageState extends State<SyncSettingsPage> {
                   _buildSyncModeCard(
                     theme: theme,
                     icon: Icons.cloud_done_outlined,
-                    title: 'NoteSync 官方云',
-                    subtitle: '由 NoteSync 提供安全可靠的云端存储',
+                    title: 'Komorebi Cloud',
+                    subtitle: '由 Komorebi 提供安全可靠的云端存储',
                     isSelected: _syncMode == 'supabase',
                     onTap: () => _changeSyncMode('supabase'),
                   ),
@@ -342,79 +342,92 @@ class _SyncSettingsPageState extends State<SyncSettingsPage> {
     required VoidCallback onTap,
     Widget? trailing,
   }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(
-          color: isSelected 
-              ? theme.colorScheme.primaryContainer.withValues(alpha: 0.5)
-              : theme.colorScheme.surfaceContainerLowest,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected 
-                ? theme.colorScheme.primary
-                : theme.colorScheme.outlineVariant.withValues(alpha: 0.3),
-            width: isSelected ? 2 : 1,
+    return Stack(
+      children: [
+        // 背景层
+        Container(
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(
+            color: isSelected
+                ? theme.colorScheme.primaryContainer.withValues(alpha: 0.5)
+                : theme.colorScheme.surfaceContainerLowest,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: isSelected
+                  ? theme.colorScheme.primary
+                  : theme.colorScheme.outlineVariant.withValues(alpha: 0.3),
+              width: isSelected ? 2 : 1,
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? theme.colorScheme.primary.withValues(alpha: 0.1)
+                        : theme.colorScheme.surfaceContainerHighest,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    icon,
+                    color: isSelected ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant,
+                    size: 22,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                          color: theme.colorScheme.onSurface,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitle,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                if (trailing != null) ...[
+                  const SizedBox(width: 8),
+                  trailing,
+                ],
+                if (isSelected) ...[
+                  const SizedBox(width: 8),
+                  Icon(Icons.check_circle_rounded, color: theme.colorScheme.primary, size: 24),
+                ],
+              ],
+            ),
           ),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: isSelected 
-                      ? theme.colorScheme.primary.withValues(alpha: 0.1)
-                      : theme.colorScheme.surfaceContainerHighest,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  icon, 
-                  color: isSelected ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant,
-                  size: 22,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 15,
-                        color: theme.colorScheme.onSurface,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-              if (trailing != null) ...[
-                const SizedBox(width: 8),
-                trailing,
-              ],
-              if (isSelected) ...[
-                const SizedBox(width: 8),
-                Icon(Icons.check_circle_rounded, color: theme.colorScheme.primary, size: 24),
-              ],
-            ],
+        // Hover 层
+        Positioned.fill(
+          child: Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(20),
+            child: InkWell(
+              onTap: onTap,
+              borderRadius: BorderRadius.circular(20),
+              hoverColor: theme.colorScheme.onSurface.withValues(alpha: 0.05),
+            ),
           ),
         ),
-      ),
+      ],
     );
   }
 
@@ -485,27 +498,31 @@ class _SyncSettingsPageState extends State<SyncSettingsPage> {
           Row(
             children: [
               Expanded(
-                child: InkWell(
-                  onTap: _openWebDAVConfig,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          _isWebDAVConfigured ? Icons.edit_rounded : Icons.add_rounded,
-                          size: 18,
-                          color: theme.colorScheme.primary,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          _isWebDAVConfigured ? '修改配置' : '添加配置',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: _openWebDAVConfig,
+                    hoverColor: theme.colorScheme.onSurface.withValues(alpha: 0.05),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            _isWebDAVConfigured ? Icons.edit_rounded : Icons.add_rounded,
+                            size: 18,
                             color: theme.colorScheme.primary,
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 8),
+                          Text(
+                            _isWebDAVConfigured ? '修改配置' : '添加配置',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: theme.colorScheme.primary,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -513,27 +530,31 @@ class _SyncSettingsPageState extends State<SyncSettingsPage> {
               if (_isWebDAVConfigured) ...[
                 Container(width: 1, height: 48, color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3)),
                 Expanded(
-                  child: InkWell(
-                    onTap: _clearWebDAVConfig,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.delete_outline_rounded,
-                            size: 18,
-                            color: theme.colorScheme.error,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            '清除',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: _clearWebDAVConfig,
+                      hoverColor: theme.colorScheme.onSurface.withValues(alpha: 0.05),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.delete_outline_rounded,
+                              size: 18,
                               color: theme.colorScheme.error,
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 8),
+                            Text(
+                              '清除',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                color: theme.colorScheme.error,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),

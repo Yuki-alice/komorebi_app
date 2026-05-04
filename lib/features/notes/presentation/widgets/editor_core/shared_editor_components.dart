@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
-import 'package:notesync_app/features/notes/presentation/widgets/editor_core/quill_styles_config.dart';
+import 'package:komorebi/features/notes/presentation/widgets/editor_core/quill_styles_config.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:provider/provider.dart';

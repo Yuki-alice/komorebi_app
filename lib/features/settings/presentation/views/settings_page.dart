@@ -22,6 +22,9 @@ class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
   void _performLogout(BuildContext context) async {
+    // 保存 NavigatorState，确保在异步操作后仍能正确导航
+    final navigator = Navigator.of(context);
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -47,19 +50,19 @@ class SettingsPage extends StatelessWidget {
       // 3. 断开云端，这会触发 AuthProvider 的状态改变
       await Supabase.instance.client.auth.signOut();
 
-      if (context.mounted) {
-        // 关掉 loading 框
-        Navigator.pop(context);
+      // 4. 关闭 loading 框并返回上一页
+      // 使用保存的 navigator，避免 context 失效问题
+      navigator.pop(); // 关闭 loading dialog
 
-        // 🌟 重点修复：如果这个设置页是 push 进来的（比如手机端），就 pop 掉它回到主屏。
-        // 如果它是作为固定面板嵌在屏幕里的（部分桌面端设计），这句就什么也不做。
-        // 我们绝对不再用 pushNamedAndRemoveUntil 去炸毁整个路由栈！
-        if (Navigator.canPop(context)) {
-          Navigator.pop(context);
-        }
+      // 如果这个设置页是 push 进来的，就 pop 掉它回到主屏
+      if (navigator.canPop()) {
+        navigator.pop();
       }
     } catch (e) {
-      if (context.mounted) Navigator.pop(context);
+      // 出错时也要关闭 loading 框
+      if (context.mounted) {
+        Navigator.of(context).pop();
+      }
       debugPrint('登出失败: $e');
     }
   }

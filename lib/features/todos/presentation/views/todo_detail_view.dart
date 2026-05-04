@@ -135,7 +135,7 @@ class _TodoDetailViewState extends State<TodoDetailView> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.delete_outline, size: 48, color: Colors.grey),
+            Icon(Icons.delete_outline, size: 48, color: Theme.of(context).colorScheme.outlineVariant),
             const SizedBox(height: 16),
             const Text("该待办项不存在或已被删除"),
             const SizedBox(height: 16),

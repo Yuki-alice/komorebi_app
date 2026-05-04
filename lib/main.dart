@@ -13,6 +13,7 @@ import 'core/providers/theme_provider.dart';
 import 'core/theme/app_theme.dart';
 import 'core/routes/app_routes.dart';
 import 'core/routes/app_router.dart';
+import 'core/services/data_migration_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
@@ -34,8 +35,35 @@ void main() async {
   }
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  bool _migrationChecked = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkMigration();
+  }
+
+  Future<void> _checkMigration() async {
+    // 延迟一点确保 BuildContext 可用
+    await Future.delayed(const Duration(milliseconds: 500));
+    if (!mounted) return;
+
+    final needsMigration = await DataMigrationService.needsMigration();
+    if (needsMigration && mounted) {
+      await DataMigrationService.showMigrationDialog(context);
+    }
+    setState(() {
+      _migrationChecked = true;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,16 +81,22 @@ class MyApp extends StatelessWidget {
         statusBarIconBrightness: isDarkMode ? Brightness.light : Brightness.dark,
         systemNavigationBarIconBrightness: isDarkMode ? Brightness.light : Brightness.dark,
       ),
-      child: MaterialApp(
-        title: 'NoteSync',
-        debugShowCheckedModeBanner: false,
-        themeMode: themeProvider.themeMode,
-        initialRoute: AppRoutes.home,
-        onGenerateRoute: AppRouter.onGenerateRoute,
+      child: AnimatedTheme(
+        data: isDarkMode
+            ? AppTheme.getTheme(context: context, seedColor: themeProvider.themeColor, isDark: true)
+            : AppTheme.getTheme(context: context, seedColor: themeProvider.themeColor, isDark: false),
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOutCubic,
+        child: MaterialApp(
+          title: 'Komorebi',
+          debugShowCheckedModeBanner: false,
+          themeMode: themeProvider.themeMode,
+          initialRoute: AppRoutes.home,
+          onGenerateRoute: AppRouter.onGenerateRoute,
 
-        // 生成深浅两套解耦的主题
-        theme: AppTheme.getTheme(context: context, seedColor: themeProvider.themeColor, isDark: false),
-        darkTheme: AppTheme.getTheme(context: context, seedColor: themeProvider.themeColor, isDark: true),
+          // 生成深浅两套解耦的主题
+          theme: AppTheme.getTheme(context: context, seedColor: themeProvider.themeColor, isDark: false),
+          darkTheme: AppTheme.getTheme(context: context, seedColor: themeProvider.themeColor, isDark: true),
 
         // 全局窗口包裹器：为桌面端统一添加控制栏
         builder: (context, child) {
@@ -86,10 +120,8 @@ class MyApp extends StatelessWidget {
                             alignment: Alignment.centerLeft,
                             child: Row(
                               children: [
-                                Icon(Icons.auto_awesome_rounded, size: 16, color: theme.colorScheme.primary),
-                                const SizedBox(width: 8),
                                 Text(
-                                  'NoteSync',
+                                  'Komorebi',
                                   style: theme.textTheme.titleSmall?.copyWith(
                                     fontWeight: FontWeight.bold,
                                     letterSpacing: 0.5,
@@ -115,14 +147,15 @@ class MyApp extends StatelessWidget {
           );
         },
 
-        // 国际化支持
-        localizationsDelegates: const [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-          FlutterQuillLocalizations.delegate,
-        ],
-        supportedLocales: FlutterQuillLocalizations.supportedLocales,
+          // 国际化支持
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+            FlutterQuillLocalizations.delegate,
+          ],
+          supportedLocales: FlutterQuillLocalizations.supportedLocales,
+        ),
       ),
     );
   }

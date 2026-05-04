@@ -262,7 +262,7 @@ class _StorageSettingsPageState extends State<StorageSettingsPage> {
           // ==========================================
           _buildSectionHeader(theme, '本地备份与恢复', Icons.auto_awesome_motion_rounded),
           Container(
-            padding: const EdgeInsets.all(24),
+            clipBehavior: Clip.antiAlias,
             decoration: BoxDecoration(
               color: theme.colorScheme.surfaceContainerLowest,
               borderRadius: BorderRadius.circular(28),
@@ -270,26 +270,26 @@ class _StorageSettingsPageState extends State<StorageSettingsPage> {
             ),
             child: Column(
               children: [
-                _buildActionRow(
+                _buildCleanupRow(
                   theme,
                   icon: Icons.cloud_upload_rounded,
+                  iconColor: theme.colorScheme.primary,
                   title: '导出本地备份',
                   subtitle: '将笔记和图片打包成 ZIP 保存到本地',
+                  buttonText: '导出',
                   onTap: () async {
                     final name = auth.displayName.isNotEmpty ? auth.displayName : 'LocalUser';
                     await backupService.exportData(name);
                   },
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: Divider(height: 1, color: theme.colorScheme.outlineVariant.withValues(alpha: 0.2)),
-                ),
-                _buildActionRow(
+                Divider(height: 1, color: theme.colorScheme.outlineVariant.withValues(alpha: 0.2)),
+                _buildCleanupRow(
                   theme,
                   icon: Icons.cloud_download_rounded,
+                  iconColor: theme.colorScheme.error,
                   title: '从备份中恢复',
-                  color: theme.colorScheme.error,
                   subtitle: '选择 ZIP 恢复数据（会覆盖现有内容）',
+                  buttonText: '恢复',
                   onTap: () async {
                     final confirm = await AppDialog.showConfirm(
                         context: context,
@@ -318,81 +318,32 @@ class _StorageSettingsPageState extends State<StorageSettingsPage> {
           Container(
             clipBehavior: Clip.antiAlias,
             decoration: BoxDecoration(
-              color: theme.colorScheme.secondaryContainer.withValues(alpha: 0.3),
+              color: theme.colorScheme.surfaceContainerLowest,
               borderRadius: BorderRadius.circular(28),
+              boxShadow: [BoxShadow(color: theme.colorScheme.shadow.withValues(alpha: 0.03), blurRadius: 20, offset: const Offset(0, 10))],
             ),
             child: Column(
               children: [
                 // 🌟 清理无用图片
-                Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(color: theme.colorScheme.secondary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(14)),
-                        child: Icon(Icons.delete_sweep_rounded, color: theme.colorScheme.secondary, size: 24),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('清理无用图片', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: theme.colorScheme.onSurface)),
-                            const SizedBox(height: 2),
-                            Text('删除已不在笔记中引用的普通图片（不会删除隐私图片）', style: TextStyle(fontSize: 12, color: theme.colorScheme.onSurfaceVariant, height: 1.3)),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      FilledButton.tonal(
-                        onPressed: _cleanRedundantImages,
-                        style: FilledButton.styleFrom(
-                          backgroundColor: theme.colorScheme.secondary.withValues(alpha: 0.15),
-                          foregroundColor: theme.colorScheme.secondary,
-                          elevation: 0,
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                        ),
-                        child: const Text('清理', style: TextStyle(fontWeight: FontWeight.bold)),
-                      ),
-                    ],
-                  ),
+                _buildCleanupRow(
+                  theme,
+                  icon: Icons.delete_sweep_rounded,
+                  iconColor: theme.colorScheme.secondary,
+                  title: '清理无用图片',
+                  subtitle: '删除已不在笔记中引用的普通图片（不会删除隐私图片）',
+                  buttonText: '清理',
+                  onTap: _cleanRedundantImages,
                 ),
                 Divider(height: 1, color: theme.colorScheme.outlineVariant.withValues(alpha: 0.2)),
                 // 🌟 清理孤儿标签
-                Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(color: theme.colorScheme.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(14)),
-                        child: Icon(Icons.label_off_outlined, color: theme.colorScheme.primary, size: 24),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('清理孤儿标签', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: theme.colorScheme.onSurface)),
-                            const SizedBox(height: 2),
-                            Text('删除不再被任何笔记使用的标签', style: TextStyle(fontSize: 12, color: theme.colorScheme.onSurfaceVariant, height: 1.3)),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      FilledButton.tonal(
-                        onPressed: _cleanupOrphanTags,
-                        style: FilledButton.styleFrom(
-                          backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.15),
-                          foregroundColor: theme.colorScheme.primary,
-                          elevation: 0,
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                        ),
-                        child: const Text('清理', style: TextStyle(fontWeight: FontWeight.bold)),
-                      ),
-                    ],
-                  ),
+                _buildCleanupRow(
+                  theme,
+                  icon: Icons.label_off_outlined,
+                  iconColor: theme.colorScheme.primary,
+                  title: '清理孤儿标签',
+                  subtitle: '删除不再被任何笔记使用的标签',
+                  buttonText: '清理',
+                  onTap: _cleanupOrphanTags,
                 ),
               ],
             ),
@@ -435,29 +386,89 @@ class _StorageSettingsPageState extends State<StorageSettingsPage> {
 
   Widget _buildActionRow(ThemeData theme, {required IconData icon, required String title, required String subtitle, required VoidCallback onTap, Color? color}) {
     final activeColor = color ?? theme.colorScheme.primary;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: activeColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(14)),
-            child: Icon(icon, color: activeColor, size: 24),
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        hoverColor: theme.colorScheme.onSurface.withValues(alpha: 0.03),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(color: activeColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(14)),
+                child: Icon(icon, color: activeColor, size: 24),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: theme.colorScheme.onSurface)),
+                    const SizedBox(height: 2),
+                    Text(subtitle, style: TextStyle(fontSize: 12, color: theme.colorScheme.onSurfaceVariant, height: 1.3)),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right_rounded, color: theme.colorScheme.onSurfaceVariant),
+            ],
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: theme.colorScheme.onSurface)),
-                const SizedBox(height: 2),
-                Text(subtitle, style: TextStyle(fontSize: 12, color: theme.colorScheme.onSurfaceVariant, height: 1.3)),
-              ],
-            ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCleanupRow(
+    ThemeData theme, {
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+    required String buttonText,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        hoverColor: theme.colorScheme.onSurface.withValues(alpha: 0.03),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(color: iconColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(14)),
+                child: Icon(icon, color: iconColor, size: 24),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: theme.colorScheme.onSurface)),
+                    const SizedBox(height: 2),
+                    Text(subtitle, style: TextStyle(fontSize: 12, color: theme.colorScheme.onSurfaceVariant, height: 1.3)),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              FilledButton.tonal(
+                onPressed: onTap,
+                style: FilledButton.styleFrom(
+                  backgroundColor: iconColor.withValues(alpha: 0.15),
+                  foregroundColor: iconColor,
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                ),
+                child: Text(buttonText, style: const TextStyle(fontWeight: FontWeight.bold)),
+              ),
+            ],
           ),
-          Icon(Icons.chevron_right_rounded, color: theme.colorScheme.onSurfaceVariant),
-        ],
+        ),
       ),
     );
   }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:notesync_app/features/auth/presentation/views/login_page.dart';
+import 'package:komorebi/features/auth/presentation/views/login_page.dart';
 
 import '../../app/main_screen.dart';
 import '../../features/settings/presentation/views/settings_page.dart';

@@ -28,11 +28,11 @@ class LoginViewModel extends ChangeNotifier {
   // --- 业务逻辑：商业级错误翻译 ---
   String _translateAuthError(String message) {
     final msg = message.toLowerCase();
-    if (msg.contains('invalid login credentials')) return '邮箱或密码错误，请重试 🥺';
-    if (msg.contains('user already registered')) return '该邮箱已注册，请直接登录呀~';
-    if (msg.contains('password should be at least')) return '密码安全性太弱，不能少于 6 位哦';
+    if (msg.contains('invalid login credentials')) return '邮箱或密码错误，请重试';
+    if (msg.contains('user already registered')) return '该邮箱已注册，请直接登录';
+    if (msg.contains('password should be at least')) return '密码安全性太弱，不能少于 6 位';
     if (msg.contains('unable to validate email')) return '请输入有效的邮箱地址';
-    if (msg.contains('rate limit')) return '操作太频繁啦，请稍后再试☕';
+    if (msg.contains('rate limit')) return '操作太频繁，请稍后再试';
     return '验证失败，请稍后再试 ($message)';
   }
 
@@ -66,7 +66,7 @@ class LoginViewModel extends ChangeNotifier {
     } catch (e) {
       _isLoading = false;
       notifyListeners();
-      return '网络开小差了，请检查网络连接 📡';
+      return '网络开小差了，请检查网络连接';
     }
   }
 

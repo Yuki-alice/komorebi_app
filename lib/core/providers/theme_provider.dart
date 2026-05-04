@@ -30,6 +30,8 @@ class ThemeProvider with ChangeNotifier {
   String get currentThemeId => _currentThemeId;
 
   static const List<AppThemeStyle> presetThemes = [
+    // 🌟 品牌默认主题 - Komorebi 光隙青绿
+    AppThemeStyle(id: 'komorebi_light', name: '光隙青绿', seedColor: Color(0xFF66C5B4), vibe: ThemeVibe.gradient),
     AppThemeStyle(id: 'classic_blue', name: '极简原生', seedColor: Color(0xFF5C6BC0), vibe: ThemeVibe.solid),
     AppThemeStyle(id: 'sakura_anime', name: '樱花微醺', seedColor: Color(0xFFF06292), vibe: ThemeVibe.solid),
     AppThemeStyle(id: 'mint_breeze', name: '薄荷微风', seedColor: Color(0xFF009688), vibe: ThemeVibe.gradient),
@@ -47,7 +49,7 @@ class ThemeProvider with ChangeNotifier {
   Future<void> _loadThemePrefs() async {
     _prefs = await SharedPreferences.getInstance();
     _themeMode = ThemeMode.values[_prefs.getInt('theme_mode_index') ?? ThemeMode.system.index];
-    _currentThemeId = _prefs.getString('theme_style_id') ?? 'classic_blue';
+    _currentThemeId = _prefs.getString('theme_style_id') ?? 'komorebi_light';
     _isProMode = _prefs.getBool('isProMode') ?? false;
     _syncSettingsToCloud = _prefs.getBool('sync_settings_to_cloud') ?? false;
     notifyListeners();

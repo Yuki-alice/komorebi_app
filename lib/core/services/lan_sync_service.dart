@@ -19,7 +19,7 @@ import '../../models/category.dart';
 import '../../models/tag.dart';
 
 class LanSyncService extends ChangeNotifier {
-  static const String _serviceType = '_notesync._tcp';
+  static const String _serviceType = '_komorebi._tcp';
 
   HttpServer? _server;
   Registration? _mDnsRegistration;

@@ -28,13 +28,39 @@ class DesktopSidebar extends StatelessWidget {
     // 构建头像组件
     Widget buildAvatarContent() {
       if (authProvider.localAvatarPath != null && File(authProvider.localAvatarPath!).existsSync()) {
-        return Image.file(File(authProvider.localAvatarPath!), fit: BoxFit.cover);
+        return Image.file(
+          File(authProvider.localAvatarPath!),
+          fit: BoxFit.cover,
+          filterQuality: FilterQuality.high,
+        );
       } else if (authProvider.avatarUrl != null) {
-        return Image.network(authProvider.avatarUrl!, fit: BoxFit.cover);
+        return Image.network(
+          authProvider.avatarUrl!,
+          fit: BoxFit.cover,
+          filterQuality: FilterQuality.high,
+        );
       } else {
+        // 无头像时显示首字母，使用圆形背景
         final name = authProvider.displayName;
         final initial = name.isNotEmpty ? name[0].toUpperCase() : 'N';
-        return Text(initial, style: TextStyle(color: theme.colorScheme.onPrimaryContainer, fontSize: 13, fontWeight: FontWeight.bold));
+        return Container(
+          width: 34,
+          height: 34,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: theme.colorScheme.primaryContainer,
+          ),
+          child: Center(
+            child: Text(
+              initial,
+              style: TextStyle(
+                color: theme.colorScheme.onPrimaryContainer,
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        );
       }
     }
 
@@ -96,8 +122,8 @@ class DesktopSidebar extends StatelessWidget {
             label: Text('笔记')
         ),
         NavigationRailDestination(
-            icon: Tooltip(message: '待办事项', child: Icon(Icons.task_alt_outlined, size: 24)),
-            selectedIcon: Tooltip(message: '待办事项', child: Icon(Icons.task_alt_rounded, size: 24)),
+            icon: Tooltip(message: '待办事项', child: Icon(Icons.checklist_outlined, size: 24)),
+            selectedIcon: Tooltip(message: '待办事项', child: Icon(Icons.checklist_rounded, size: 24)),
             label: Text('待办')
         ),
       ],
@@ -109,9 +135,47 @@ class DesktopSidebar extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              IconButton(icon: const Icon(Icons.auto_delete_outlined, size: 22), tooltip: '回收站', onPressed: onTrashTap, color: theme.colorScheme.onSurfaceVariant),
+              // 回收站按钮 - 使用 Material + InkWell 实现圆角 hover 效果
+              Material(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(12),
+                child: InkWell(
+                  onTap: onTrashTap,
+                  borderRadius: BorderRadius.circular(12),
+                  hoverColor: theme.colorScheme.onSurface.withValues(alpha: 0.05),
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    alignment: Alignment.center,
+                    child: Icon(
+                      Icons.delete_outline_rounded,
+                      size: 22,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              ),
               const SizedBox(height: 8),
-              IconButton(icon: const Icon(Icons.settings_outlined, size: 22), tooltip: '系统设置', onPressed: onSettingsTap, color: theme.colorScheme.onSurfaceVariant),
+              // 设置按钮 - 使用 Material + InkWell 实现圆角 hover 效果
+              Material(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(12),
+                child: InkWell(
+                  onTap: onSettingsTap,
+                  borderRadius: BorderRadius.circular(12),
+                  hoverColor: theme.colorScheme.onSurface.withValues(alpha: 0.05),
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    alignment: Alignment.center,
+                    child: Icon(
+                      Icons.settings_outlined,
+                      size: 22,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              ),
               const SizedBox(height: 24),
 
               // 用户弹窗菜单
@@ -134,11 +198,14 @@ class DesktopSidebar extends StatelessWidget {
                 child: MouseRegion(
                   cursor: SystemMouseCursors.click,
                   child: Container(
-                    decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5), width: 1.5), boxShadow: [BoxShadow(color: theme.colorScheme.shadow.withValues(alpha: 0.1), blurRadius: 6, offset: const Offset(0, 2))]),
-                    clipBehavior: Clip.antiAlias,
-                    child: CircleAvatar(
-                      radius: 16,
-                      backgroundColor: theme.colorScheme.primaryContainer,
+                    width: 34,
+                    height: 34,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5), width: 1.5),
+                      boxShadow: [BoxShadow(color: theme.colorScheme.shadow.withValues(alpha: 0.1), blurRadius: 6, offset: const Offset(0, 2))],
+                    ),
+                    child: ClipOval(
                       child: buildAvatarContent(),
                     ),
                   ),

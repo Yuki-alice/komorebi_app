@@ -29,7 +29,7 @@ class _CustomCheckboxBuilder extends quill.QuillCheckboxBuilder {
   }
 }
 
-/// 🌟 NoteSync 商业级 Quill 编辑器样式配置
+/// 🌟 Komorebi 商业级 Quill 编辑器样式配置
 class QuillStylesConfig {
   /// 获取桌面端样式配置
   static quill.DefaultStyles getDesktopStyles(BuildContext context) {

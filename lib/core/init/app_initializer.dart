@@ -13,6 +13,7 @@ import '../repositories/tag_repository.dart';
 import '../repositories/todo_repository.dart';
 import '../services/privacy_service.dart';
 import '../services/supabase_sync_service.dart';
+import '../services/data_migration_service.dart';
 import '../theme/app_fonts.dart';
 
 class AppInitializer {
@@ -49,15 +50,23 @@ class AppInitializer {
       debugPrint('✅ AppInitializer: Supabase 初始化成功');
     }
 
-    // 3. 本地 Isar 数据库初始化
+    // 3. 检查是否需要数据迁移（从旧包名迁移）
+    // 注意：需要在数据库初始化前检查，因为迁移会操作数据库文件
+    final needsMigration = await DataMigrationService.needsMigration();
+    if (needsMigration) {
+      debugPrint('📦 AppInitializer: 检测到需要数据迁移');
+      // 迁移将在 main.dart 中显示对话框后执行
+    }
+
+    // 4. 本地 Isar 数据库初始化
     final dbService = SimpleDatabaseService();
     await dbService.init();
 
-    // 4. 预加载字体（避免首次使用时的网络请求卡顿）
+    // 5. 预加载字体（避免首次使用时的网络请求卡顿）
     await AppFonts.preloadFonts();
     debugPrint('✅ AppInitializer: 字体预加载完成');
 
-    // 5. 桌面端窗口初始化
+    // 6. 桌面端窗口初始化
     if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
       await windowManager.ensureInitialized();
       WindowOptions windowOptions = const WindowOptions(
@@ -74,13 +83,13 @@ class AppInitializer {
       });
     }
 
-    // 6. 实例化数据仓库
+    // 7. 实例化数据仓库
     noteRepo = NoteRepository(dbService.isar);
     todoRepo = TodoRepository(dbService.isar);
     categoryRepo = CategoryRepository(dbService.isar);
     tagRepo = TagRepository(dbService.isar);
 
-    // 7. 注册隐私空间解锁回调 - 解锁时触发隐私图片同步
+    // 8. 注册隐私空间解锁回调 - 解锁时触发隐私图片同步
     PrivacyService().addOnUnlockListener(() async {
       debugPrint('🔐 AppInitializer: 隐私空间解锁，触发隐私图片同步');
       final syncService = SupabaseSyncService(noteRepo, todoRepo, categoryRepo, tagRepo);

@@ -14,8 +14,8 @@ import '../../models/tag.dart';
 
 class WebDavSyncService {
   final Isar _isar;
-  static const String _remoteBaseDir = '/NoteSync';
-  static const String _remoteJsonPath = '$_remoteBaseDir/notesync_data.json';
+  static const String _remoteBaseDir = '/Komorebi';
+  static const String _remoteJsonPath = '$_remoteBaseDir/komorebi_data.json';
   static const String _remoteImageDir = '$_remoteBaseDir/images';
 
   WebDavSyncService(this._isar);

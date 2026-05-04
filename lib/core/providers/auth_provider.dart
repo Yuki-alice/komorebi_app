@@ -80,7 +80,12 @@ class AuthProvider with ChangeNotifier {
         _cloudProfileData = data;
       } else {
         // 兜底：如果没数据，初始化一行
-        await _supabase.from('user_profiles').upsert({'id': userId, 'settings_json': {}});
+        final now = DateTime.now().toUtc();
+        await _supabase.from('user_profiles').upsert({
+          'id': userId,
+          'settings_json': {},
+          'last_active_at': now.toIso8601String(),
+        });
         _cloudProfileData = {'id': userId, 'settings_json': {}};
       }
       notifyListeners();
@@ -97,10 +102,12 @@ class AuthProvider with ChangeNotifier {
       final currentSettings = Map<String, dynamic>.from(_cloudProfileData['settings_json'] ?? {});
       currentSettings.addAll(newSettings);
 
+      final now = DateTime.now().toUtc();
       await _supabase.from('user_profiles').upsert({
         'id': userId,
         'settings_json': currentSettings,
-        'updated_at': DateTime.now().toUtc().toIso8601String()
+        'updated_at': now.toIso8601String(),
+        'last_active_at': now.toIso8601String(),
       });
 
       _cloudProfileData['settings_json'] = currentSettings;
@@ -114,13 +121,17 @@ class AuthProvider with ChangeNotifier {
     if (!isAuthenticated) return;
     try {
       final userId = _currentUser!.id;
-      final Map<String, dynamic> updates = {'updated_at': DateTime.now().toUtc().toIso8601String()};
+      final now = DateTime.now().toUtc();
+      final Map<String, dynamic> updates = {
+        'updated_at': now.toIso8601String(),
+        'last_active_at': now.toIso8601String(),
+      };
 
       if (nickname != null) updates['nickname'] = nickname;
       if (avatarUrl != null) updates['avatar_url'] = avatarUrl;
       if (bio != null) updates['bio'] = bio;
 
-      if (updates.length > 1) {
+      if (updates.length > 2) {
         await _supabase.from('user_profiles').upsert({'id': userId, ...updates});
       }
 

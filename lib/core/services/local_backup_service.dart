@@ -57,7 +57,7 @@ class LocalBackupService {
 
       // 4. 创建内存 Archive
       final archive = Archive();
-      archive.addFile(ArchiveFile('notesync_data.json', jsonBytes.length, jsonBytes));
+      archive.addFile(ArchiveFile('komorebi_data.json', jsonBytes.length, jsonBytes));
 
       // 5. 将本地所有的图片加入 Archive
       final imgDir = await _imageDir;
@@ -80,7 +80,7 @@ class LocalBackupService {
       // 🌟 构造人类可读的时间戳
       final now = DateTime.now();
       final timeString = '${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}_${now.hour.toString().padLeft(2, '0')}${now.minute.toString().padLeft(2, '0')}${now.second.toString().padLeft(2, '0')}';
-      final zipPath = p.join(tempDir.path, 'NoteSync_${safeUserName}_$timeString.zip');
+      final zipPath = p.join(tempDir.path, 'Komorebi_${safeUserName}_$timeString.zip');
 
       zipEncoder.create(zipPath);
       for (var file in archive) {
@@ -90,7 +90,7 @@ class LocalBackupService {
       await SharePlus.instance.share(
         ShareParams(
           files: [XFile(zipPath)],
-          text: '这是 $userName 的 NoteSync 数据备份', //
+          text: '这是 $userName 的 Komorebi 数据备份', //
         ),
       );
 
@@ -116,10 +116,12 @@ class LocalBackupService {
       // 2. 解压 ZIP
       final archive = ZipDecoder().decodeBytes(bytes);
 
-      // 3. 寻找并解析 JSON 数据
-      final jsonArchiveFile = archive.findFile('notesync_data.json');
+      // 3. 寻找并解析 JSON 数据（兼容新旧文件名）
+      var jsonArchiveFile = archive.findFile('komorebi_data.json');
+      // 兼容旧版本备份文件名
+      jsonArchiveFile ??= archive.findFile('notesync_data.json');
       if (jsonArchiveFile == null) {
-        throw Exception("无效的备份文件：找不到 notesync_data.json");
+        throw Exception("无效的备份文件：找不到数据文件");
       }
 
       final jsonString = utf8.decode(jsonArchiveFile.content as List<int>);

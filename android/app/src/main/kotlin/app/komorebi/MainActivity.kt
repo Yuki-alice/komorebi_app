@@ -1,4 +1,4 @@
-package com.example.notesync_app
+package app.komorebi
 
 import io.flutter.embedding.android.FlutterActivity
 

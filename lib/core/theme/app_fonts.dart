@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-/// NoteSync 商业级字体配置系统（性能优化版）
+/// Komorebi 商业级字体配置系统（性能优化版）
 /// 
 /// 设计原则：
 /// 1. 中文优先：使用 Noto Sans/Serif SC 保证中文显示效果

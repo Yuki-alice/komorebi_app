@@ -1,5 +1,5 @@
-name: notesync_app
-description: "一个跨平台的笔记与待办事项同步应用"
+name: komorebi
+description: "光隙笔记 - 记录灵感，如光隙般自然"
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -57,6 +57,9 @@ dependencies:
   device_info_plus: ^11.4.0
   package_info_plus: ^8.3.0
   image: ^4.5.4
+  dio: ^5.7.0
+  open_file: ^3.5.10
+  permission_handler: ^11.3.1
 
 dev_dependencies:
   flutter_test:
@@ -72,3 +75,7 @@ flutter:
     - assets/fonts/
     - assets/fonts/noto_sans_sc/
     - assets/fonts/noto_serif_sc/
+    - assets/icons/
+    - assets/icons/android/
+    - assets/icons/windows/
+    - assets/icons/dark/

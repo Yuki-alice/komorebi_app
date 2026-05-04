@@ -40,6 +40,9 @@ class _ProfileDashboardCardState extends State<ProfileDashboardCard> {
     );
 
     if (confirm == true && context.mounted) {
+      // 保存 NavigatorState，确保在异步操作后仍能正确导航
+      final navigator = Navigator.of(context);
+
       ToastUtils.showInfo(context, '正在彻底销毁本地数据...');
 
       context.read<NotesProvider>().clearLocalData();
@@ -63,9 +66,14 @@ class _ProfileDashboardCardState extends State<ProfileDashboardCard> {
 
       await widget.auth.signOut();
 
+      // 显示成功提示并返回上一页
       if (context.mounted) {
         ToastUtils.showSuccess(context, '数据已彻底擦除，安全退出');
-        Navigator.pushNamedAndRemoveUntil(context, AppRoutes.settings, (route) => false);
+      }
+
+      // 使用保存的 navigator 返回上一页
+      if (navigator.canPop()) {
+        navigator.pop();
       }
     }
   }
@@ -89,16 +97,33 @@ class _ProfileDashboardCardState extends State<ProfileDashboardCard> {
           children: [
             Row(
               children: [
-                // 头像
+                // 头像 - 使用高质量滤镜避免锯齿
                 Container(
                   width: 60, height: 60,
                   decoration: BoxDecoration(shape: BoxShape.circle, color: theme.colorScheme.primaryContainer),
-                  clipBehavior: Clip.hardEdge,
+                  clipBehavior: Clip.antiAlias,
                   child: Builder(
                     builder: (context) {
-                      if (auth.localAvatarPath != null && File(auth.localAvatarPath!).existsSync()) return Image.file(File(auth.localAvatarPath!), fit: BoxFit.cover);
-                      else if (auth.avatarUrl != null) return Image.network(auth.avatarUrl!, fit: BoxFit.cover);
-                      else return Center(child: Text(auth.displayName.isNotEmpty ? auth.displayName[0].toUpperCase() : 'N', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: theme.colorScheme.primary)));
+                      if (auth.localAvatarPath != null && File(auth.localAvatarPath!).existsSync()) {
+                        return Image.file(
+                          File(auth.localAvatarPath!),
+                          fit: BoxFit.cover,
+                          filterQuality: FilterQuality.high,
+                        );
+                      } else if (auth.avatarUrl != null) {
+                        return Image.network(
+                          auth.avatarUrl!,
+                          fit: BoxFit.cover,
+                          filterQuality: FilterQuality.high,
+                        );
+                      } else {
+                        return Center(
+                          child: Text(
+                            auth.displayName.isNotEmpty ? auth.displayName[0].toUpperCase() : 'N',
+                            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: theme.colorScheme.primary),
+                          ),
+                        );
+                      }
                     },
                   ),
                 ),

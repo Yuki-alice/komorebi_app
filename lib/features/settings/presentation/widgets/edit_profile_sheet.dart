@@ -48,10 +48,33 @@ class _EditProfileSheetState extends State<EditProfileSheet> {
   }
 
   Widget _buildAvatarImage(ProfileViewModel vm, AuthProvider auth, ThemeData theme) {
-    if (vm.localSelectedImage != null) return Image.file(vm.localSelectedImage!, fit: BoxFit.cover);
-    if (auth.localAvatarPath != null && File(auth.localAvatarPath!).existsSync()) return Image.file(File(auth.localAvatarPath!), fit: BoxFit.cover);
-    if (auth.avatarUrl != null) return Image.network(auth.avatarUrl!, fit: BoxFit.cover);
-    return Center(child: Text(_nameController.text.isNotEmpty ? _nameController.text[0].toUpperCase() : 'N', style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: theme.colorScheme.primary)));
+    if (vm.localSelectedImage != null) {
+      return Image.file(
+        vm.localSelectedImage!,
+        fit: BoxFit.cover,
+        filterQuality: FilterQuality.high,
+      );
+    }
+    if (auth.localAvatarPath != null && File(auth.localAvatarPath!).existsSync()) {
+      return Image.file(
+        File(auth.localAvatarPath!),
+        fit: BoxFit.cover,
+        filterQuality: FilterQuality.high,
+      );
+    }
+    if (auth.avatarUrl != null) {
+      return Image.network(
+        auth.avatarUrl!,
+        fit: BoxFit.cover,
+        filterQuality: FilterQuality.high,
+      );
+    }
+    return Center(
+      child: Text(
+        _nameController.text.isNotEmpty ? _nameController.text[0].toUpperCase() : 'N',
+        style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: theme.colorScheme.primary),
+      ),
+    );
   }
 
   @override
