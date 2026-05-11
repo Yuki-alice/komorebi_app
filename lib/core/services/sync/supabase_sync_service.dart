@@ -18,6 +18,7 @@ import '../../repositories/note_repository.dart';
 import '../../repositories/tag_repository.dart';
 import '../../repositories/todo_repository.dart';
 
+import '../performance/perf.dart';
 import 'sync_models.dart';
 import 'supabase_retry_wrapper.dart';
 import 'supabase_deletion_sync.dart';
@@ -73,31 +74,33 @@ class SupabaseSyncService {
     Function()? onTextSyncComplete,
     dynamic context,
   }) async {
-    await _noteSync.syncNotes(
-      onTextSyncComplete: onTextSyncComplete,
-      context: context,
-    );
+    await Perf.trace('sync.notes', () async {
+      await _noteSync.syncNotes(
+        onTextSyncComplete: onTextSyncComplete,
+        context: context,
+      );
 
-    // 笔记文本同步完成后，执行图片资源同步
-    if (_noteRepo != null && _supabase.auth.currentUser != null) {
-      try {
-        final allNotes = _noteRepo!.getAllNotes();
+      // 笔记文本同步完成后，执行图片资源同步
+      if (_noteRepo != null && _supabase.auth.currentUser != null) {
+        try {
+          final allNotes = _noteRepo!.getAllNotes();
 
-        // 先同步 attachments 表（迁移已有数据）
-        await _imageSync.syncAttachmentsTable(allNotes);
+          // 先同步 attachments 表（迁移已有数据）
+          await _imageSync.syncAttachmentsTable(allNotes);
 
-        // 上传所有笔记的图片（不只是被推送的），确保隐私笔记图片也能上传
-        await _imageSync.uploadImages(allNotes);
+          // 上传所有笔记的图片（不只是被推送的），确保隐私笔记图片也能上传
+          await _imageSync.uploadImages(allNotes);
 
-        // 强行扫描所有本地存活笔记，缺失的图片全部从云端下回来
-        await _imageSync.downloadImages(allNotes);
+          // 强行扫描所有本地存活笔记，缺失的图片全部从云端下回来
+          await _imageSync.downloadImages(allNotes);
 
-        // 云端垃圾回收
-        await _imageSync.cleanUpCloudImages(allNotes);
-      } catch (e) {
-        SyncLogger.error('IMAGE', '图片同步或清理管线异常', e);
+          // 云端垃圾回收
+          await _imageSync.cleanUpCloudImages(allNotes);
+        } catch (e) {
+          SyncLogger.error('IMAGE', '图片同步或清理管线异常', e);
+        }
       }
-    }
+    });
   }
 
   // =========================================================================
@@ -110,5 +113,7 @@ class SupabaseSyncService {
   // 公共 API - 待办同步
   // =========================================================================
 
-  Future<void> syncTodos({Function()? onSyncComplete}) => _todoSync.syncTodos(onSyncComplete: onSyncComplete);
+  Future<void> syncTodos({Function()? onSyncComplete}) async {
+    await Perf.trace('sync.todos', () => _todoSync.syncTodos(onSyncComplete: onSyncComplete));
+  }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:isar/isar.dart';
 import '../../models/todo.dart';
+import '../services/performance/perf.dart';
 
 class TodoRepository {
   final Isar _isar;
@@ -10,66 +11,74 @@ class TodoRepository {
   Future<void> init() async {}
 
   Todo? getTodoById(String id) {
-    return _isar.todos.where().idEqualTo(id).findFirstSync();
+    return Perf.traceSync('repo.todo.getById', () {
+      return _isar.todos.where().idEqualTo(id).findFirstSync();
+    }, metadata: {'id': id});
   }
 
   Map<String, DateTime> getAllTodosMetadata() {
-    final todos = _isar.todos.where().findAllSync();
-    return {for (var todo in todos) todo.id: todo.updatedAt};
+    return Perf.traceSync('repo.todo.getAllMetadata', () {
+      final todos = _isar.todos.where().findAllSync();
+      return {for (var todo in todos) todo.id: todo.updatedAt};
+    });
   }
 
   List<Todo> getAllTodos() {
-    try {
-      final todos = _isar.todos.where().findAllSync();
-      todos.sort((a, b) {
-        if (a.isCompleted == b.isCompleted) {
-          return b.createdAt.compareTo(a.createdAt);
-        }
-        return a.isCompleted ? 1 : -1;
-      });
-      return todos;
-    } catch (e) {
-      debugPrint('Repo Error (getAllTodos): $e');
-      return [];
-    }
+    return Perf.traceSync('repo.todo.getAll', () {
+      try {
+        final todos = _isar.todos.where().findAllSync();
+        todos.sort((a, b) {
+          if (a.isCompleted == b.isCompleted) {
+            return b.createdAt.compareTo(a.createdAt);
+          }
+          return a.isCompleted ? 1 : -1;
+        });
+        return todos;
+      } catch (e) {
+        debugPrint('Repo Error (getAllTodos): $e');
+        return [];
+      }
+    });
   }
 
   Future<void> addTodo(Todo todo) async {
-    await _isar.writeTxn(() async {
+    await Perf.trace('repo.todo.add', () => _isar.writeTxn(() async {
       await _isar.todos.put(todo);
-    });
+    }));
   }
 
   Future<void> updateTodo(Todo todo) async {
-    todo.version += 1;
-    todo.updatedAt = DateTime.now();
-    await _isar.writeTxn(() async {
+    await Perf.trace('repo.todo.update', () => _isar.writeTxn(() async {
+      todo.version += 1;
+      todo.updatedAt = DateTime.now();
       await _isar.todos.put(todo);
-    });
+    }));
   }
 
   Future<void> deleteTodo(String id) async {
-    await _isar.writeTxn(() async {
+    await Perf.trace('repo.todo.delete', () => _isar.writeTxn(() async {
       await _isar.todos.where().idEqualTo(id).deleteAll();
-    });
+    }));
   }
 
   Future<List<Todo>> searchTodos(String query, String? categoryId) async {
-    var q = _isar.todos.filter().isDeletedEqualTo(false);
+    return await Perf.trace('repo.todo.search', () async {
+      var q = _isar.todos.filter().isDeletedEqualTo(false);
 
-    if (categoryId != null && categoryId.isNotEmpty) {
-      q = q.categoryIdEqualTo(categoryId);
-    }
+      if (categoryId != null && categoryId.isNotEmpty) {
+        q = q.categoryIdEqualTo(categoryId);
+      }
 
-    if (query.trim().isNotEmpty) {
-      q = q.group((q) => q.titleContains(query, caseSensitive: false)
-          .or()
-          .descriptionContains(query, caseSensitive: false)
-          .or()
-          .subTasksElement((subQ) => subQ.titleContains(query, caseSensitive: false)));
-    }
+      if (query.trim().isNotEmpty) {
+        q = q.group((q) => q.titleContains(query, caseSensitive: false)
+            .or()
+            .descriptionContains(query, caseSensitive: false)
+            .or()
+            .subTasksElement((subQ) => subQ.titleContains(query, caseSensitive: false)));
+      }
 
-    return await q.sortByIsCompleted().thenByCreatedAtDesc().findAll();
+      return await q.sortByIsCompleted().thenByCreatedAtDesc().findAll();
+    }, metadata: {'query': query, 'categoryId': categoryId});
   }
 
   // 🌟 暴露给 Provider 用的响应式流

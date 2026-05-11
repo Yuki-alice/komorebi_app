@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:isar/isar.dart';
 import '../../models/note.dart';
+import '../services/performance/perf.dart';
 
 class NoteRepository {
   final Isar _isar;
@@ -10,7 +11,9 @@ class NoteRepository {
   Future<void> init() async {}
 
   Note? getNoteById(String id) {
-    return _isar.notes.where().idEqualTo(id).findFirstSync();
+    return Perf.traceSync('repo.note.getById', () {
+      return _isar.notes.where().idEqualTo(id).findFirstSync();
+    }, metadata: {'id': id});
   }
 
   Map<String, DateTime> getAllNotesMetadata() {
@@ -31,62 +34,66 @@ class NoteRepository {
   }
 
   List<Note> getAllNotes() {
-    try {
-      final notes = _isar.notes.where().findAllSync();
-      notes.sort((a, b) {
-        if (a.isPinned != b.isPinned) {
-          return a.isPinned ? -1 : 1;
-        }
-        return b.updatedAt.compareTo(a.updatedAt);
-      });
-      return notes;
-    } catch (e) {
-      debugPrint('Repo Error (getAllNotes): $e');
-      return [];
-    }
+    return Perf.traceSync('repo.note.getAll', () {
+      try {
+        final notes = _isar.notes.where().findAllSync();
+        notes.sort((a, b) {
+          if (a.isPinned != b.isPinned) {
+            return a.isPinned ? -1 : 1;
+          }
+          return b.updatedAt.compareTo(a.updatedAt);
+        });
+        return notes;
+      } catch (e) {
+        debugPrint('Repo Error (getAllNotes): $e');
+        return [];
+      }
+    });
   }
 
   Future<void> addNote(Note note) async {
-    await _isar.writeTxn(() async {
+    await Perf.trace('repo.note.add', () => _isar.writeTxn(() async {
       await _isar.notes.put(note);
-    });
+    }));
   }
 
   Future<void> updateNote(Note note) async {
-    note.version += 1;
-    note.updatedAt = DateTime.now();
-    await _isar.writeTxn(() async {
+    await Perf.trace('repo.note.update', () => _isar.writeTxn(() async {
+      note.version += 1;
+      note.updatedAt = DateTime.now();
       await _isar.notes.put(note);
-    });
+    }));
   }
 
   /// 🌟 同步专用：保存笔记但不修改 updatedAt（保留云端时间戳）
   Future<void> saveNoteFromSync(Note note) async {
-    await _isar.writeTxn(() async {
+    await Perf.trace('repo.note.saveFromSync', () => _isar.writeTxn(() async {
       await _isar.notes.put(note);
-    });
+    }));
   }
 
   Future<void> deleteNote(String id) async {
-    await _isar.writeTxn(() async {
+    await Perf.trace('repo.note.delete', () => _isar.writeTxn(() async {
       await _isar.notes.where().idEqualTo(id).deleteAll();
-    });
+    }));
   }
 
   Future<List<Note>> searchNotes(String query, String? categoryId) async {
-    var q = _isar.notes.filter().isDeletedEqualTo(false);
+    return await Perf.trace('repo.note.search', () async {
+      var q = _isar.notes.filter().isDeletedEqualTo(false);
 
-    if (categoryId != null && categoryId.isNotEmpty) {
-      q = q.categoryIdEqualTo(categoryId);
-    }
+      if (categoryId != null && categoryId.isNotEmpty) {
+        q = q.categoryIdEqualTo(categoryId);
+      }
 
-    if (query.trim().isNotEmpty) {
-      q = q.group((q) => q.titleContains(query, caseSensitive: false)
-          .or()
-          .contentContains(query, caseSensitive: false));
-    }
+      if (query.trim().isNotEmpty) {
+        q = q.group((q) => q.titleContains(query, caseSensitive: false)
+            .or()
+            .contentContains(query, caseSensitive: false));
+      }
 
-    return await q.sortByIsPinnedDesc().thenByUpdatedAtDesc().findAll();
+      return await q.sortByIsPinnedDesc().thenByUpdatedAtDesc().findAll();
+    }, metadata: {'query': query, 'categoryId': categoryId});
   }
 
   Stream<void> watchNotesChanged() {

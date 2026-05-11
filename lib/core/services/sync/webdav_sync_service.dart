@@ -15,6 +15,7 @@ import '../../repositories/category_repository.dart';
 import '../../repositories/tag_repository.dart';
 import '../../repositories/todo_repository.dart';
 import '../../constants/sync_constants.dart';
+import '../performance/perf.dart';
 import 'sync_models.dart';
 
 class WebDavSyncService {
@@ -73,11 +74,12 @@ class WebDavSyncService {
   // 🔄 2. 核心 2-Way JSON 增量合并同步
   // =========================================================================
   Future<void> syncAll() async {
-    final client = await _getClient();
-    if (client == null) {
-      debugPrint('⚠️ WebDAV 未配置，中止同步');
-      return;
-    }
+    await Perf.trace('sync.webdav', () async {
+      final client = await _getClient();
+      if (client == null) {
+        debugPrint('⚠️ WebDAV 未配置，中止同步');
+        return;
+      }
 
     final prefs = await SharedPreferences.getInstance();
 
@@ -163,6 +165,7 @@ class WebDavSyncService {
       debugPrint('❌ [SYNC-WEBDAV] 引擎崩溃: $e');
       rethrow;
     }
+    });
   }
 
 
