@@ -11,6 +11,7 @@ import '../../repositories/tag_repository.dart';
 import '../../../models/category.dart';
 import '../../../models/tag.dart';
 
+import '../../constants/sync_constants.dart';
 import 'sync_models.dart';
 import 'supabase_retry_wrapper.dart';
 
@@ -81,7 +82,7 @@ class SupabaseCategoryTagSync {
         catsToPush.add(catToPayload(localCat));
       } else {
         final cloudTime = DateTime.parse(cloudData['updated_at']).toLocal();
-        if (localCat.updatedAt.difference(cloudTime).inSeconds > 2) {
+        if (localCat.updatedAt.difference(cloudTime).inSeconds > timeBuffer.inSeconds) {
           catsToPush.add(catToPayload(localCat));
         }
       }
@@ -99,7 +100,7 @@ class SupabaseCategoryTagSync {
         name: cloudData['name'],
         color: cloudData['color'],
         icon: cloudData['icon'],
-        sortOrder: (cloudData['sort_order'] as num?)?.toDouble() ?? 0.0,
+        sortOrder: (cloudData['sort_order'] as num?)?.toDouble() ?? SyncConstants.defaultSortOrder,
         isDeleted: cloudData['is_deleted'] ?? false,
         createdAt: DateTime.parse(cloudData['created_at']).toLocal(),
         updatedAt: cloudTime,
@@ -109,7 +110,7 @@ class SupabaseCategoryTagSync {
         await _categoryRepo!.addCategory(cloudCatModel);
         localCatChanged = true;
       } else {
-        if (cloudTime.difference(localCat.updatedAt).inSeconds > 2) {
+        if (cloudTime.difference(localCat.updatedAt).inSeconds > timeBuffer.inSeconds) {
           await _categoryRepo!.updateCategory(cloudCatModel);
           localCatChanged = true;
         }

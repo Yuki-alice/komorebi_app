@@ -11,6 +11,7 @@ import '../../repositories/note_repository.dart';
 import '../../../widgets/common/dialogs/sync_conflict_dialog.dart';
 import '../../../models/note.dart';
 
+import '../../constants/sync_constants.dart';
 import 'sync_models.dart';
 
 class SupabaseNoteConflictResolver {
@@ -89,7 +90,7 @@ class SupabaseNoteConflictResolver {
       final cloudId = cloudMeta.key;
       final cloudData = cloudMeta.value;
       final localData = localMetaMap[cloudId];
-      final lastSyncedVersion = lastSyncedVersions[cloudId] ?? 1;
+      final lastSyncedVersion = lastSyncedVersions[cloudId] ?? SyncConstants.defaultVersion;
 
       if (localData == null) {
         toPull.add(cloudId);

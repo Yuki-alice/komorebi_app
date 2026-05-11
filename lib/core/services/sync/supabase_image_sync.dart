@@ -17,6 +17,7 @@ import '../storage/storage_quota_service.dart';
 import '../../../models/user_quota.dart';
 import '../../../models/note.dart';
 
+import '../../constants/sync_constants.dart';
 import 'sync_models.dart';
 
 class SupabaseImageSync {
@@ -316,7 +317,9 @@ class SupabaseImageSync {
     // 🌟 优化：加密/解密是CPU密集型操作，减少并发数避免卡顿
     // 普通图片用 5 个并发，隐私图片用 2 个并发
     final hasPrivateImages = fileNameToIsPrivate.values.any((v) => v);
-    final int maxConcurrent = hasPrivateImages ? 2 : 5;
+    final int maxConcurrent = hasPrivateImages
+        ? SyncConstants.imageDownloadConcurrencyPrivate
+        : SyncConstants.imageDownloadConcurrencyNormal;
     final fileList = fileNameToIsPrivate.keys.toList();
     final privacy = PrivacyService();
 
@@ -397,7 +400,7 @@ class SupabaseImageSync {
       }
 
       final storage = _supabase.storage.from(imageBucket);
-      final List<FileObject> cloudFiles = await storage.list(searchOptions: const SearchOptions(limit: 5000));
+      final List<FileObject> cloudFiles = await storage.list(searchOptions: SearchOptions(limit: SyncConstants.cloudFileListLimit));
 
       final List<String> orphanedFiles = [];
       for (var file in cloudFiles) {
@@ -558,7 +561,7 @@ class SupabaseImageSync {
   Future<Set<String>> _getCloudFileList() async {
     try {
       final storage = _supabase.storage.from(imageBucket);
-      final files = await storage.list(searchOptions: const SearchOptions(limit: 5000));
+      final files = await storage.list(searchOptions: SearchOptions(limit: SyncConstants.cloudFileListLimit));
       return files.map((f) => f.name).toSet();
     } catch (e) {
       SyncLogger.warn('IMAGE', '获取云端文件列表失败: $e');

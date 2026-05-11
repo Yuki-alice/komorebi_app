@@ -8,6 +8,8 @@ import 'package:crypto/crypto.dart';
 import 'package:encrypt/encrypt.dart' as enc;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+import '../../constants/storage_constants.dart';
+
 
 
 /// 隐私服务 - 商业级安全实现
@@ -40,7 +42,7 @@ class PrivacyService with WidgetsBindingObserver {
   Timer? _autoLockTimer;
 
   /// 自动锁定时长（默认 5 分钟）
-  Duration _autoLockDuration = const Duration(minutes: 5);
+  Duration _autoLockDuration = StorageConstants.privacyAutoLockTimeout;
 
   // ==================== 常量 ====================
   static const String _encryptPrefix = 'AES_V1::';
@@ -241,7 +243,7 @@ class PrivacyService with WidgetsBindingObserver {
     final encrypter = enc.Encrypter(
       enc.AES(_sessionKey!, mode: enc.AESMode.gcm),
     );
-    final iv = enc.IV.fromSecureRandom(12); // GCM 推荐 12 字节 IV
+    final iv = enc.IV.fromSecureRandom(StorageConstants.aesGcmIvLength); // GCM 推荐 12 字节 IV
     final encrypted = encrypter.encrypt(plainText, iv: iv);
 
     return '$_encryptPrefix${iv.base64}:${encrypted.base64}';
@@ -295,7 +297,7 @@ class PrivacyService with WidgetsBindingObserver {
     final encrypter = enc.Encrypter(
       enc.AES(_sessionKey!, mode: enc.AESMode.gcm),
     );
-    final iv = enc.IV.fromSecureRandom(12);
+    final iv = enc.IV.fromSecureRandom(StorageConstants.aesGcmIvLength);
     final encrypted = encrypter.encryptBytes(fileBytes, iv: iv);
 
     // 格式: IV + Ciphertext
@@ -316,9 +318,9 @@ class PrivacyService with WidgetsBindingObserver {
 
     try {
       // 分离 IV 和密文
-      final iv = enc.IV(Uint8List.fromList(encryptedBytes.sublist(0, 12)));
+      final iv = enc.IV(Uint8List.fromList(encryptedBytes.sublist(0, StorageConstants.aesGcmIvLength)));
       final encrypted = enc.Encrypted(
-        Uint8List.fromList(encryptedBytes.sublist(12)),
+        Uint8List.fromList(encryptedBytes.sublist(StorageConstants.aesGcmIvLength)),
       );
 
       final encrypter = enc.Encrypter(
@@ -337,7 +339,7 @@ class PrivacyService with WidgetsBindingObserver {
 
   /// 生成随机 salt（16 字节）
   List<int> _generateSalt() {
-    return enc.SecureRandom(16).bytes;
+    return enc.SecureRandom(StorageConstants.saltLength).bytes;
   }
 
   /// 使用 HMAC-SHA256 实现 PBKDF2 密钥派生
@@ -348,9 +350,9 @@ class PrivacyService with WidgetsBindingObserver {
   /// - hash: HMAC-SHA256
   /// - salt: 16 字节随机值（与密文一起存储）
   enc.Key _deriveKeyFromPassword(String password, {required List<int> salt}) {
-    const iterations = 10000;
-    const keyLength = 32;
-    const hashLength = 32; // SHA-256 输出 32 字节
+    const iterations = StorageConstants.pbkdf2Iterations;
+    const keyLength = StorageConstants.aesKeyLength;
+    const hashLength = StorageConstants.sha256HashLength;
 
     final hmac = Hmac(sha256, utf8.encode(password));
     final blocks = (keyLength / hashLength).ceil();
@@ -400,7 +402,7 @@ class PrivacyService with WidgetsBindingObserver {
     final encrypter = enc.Encrypter(
       enc.AES(kek, mode: enc.AESMode.gcm),
     );
-    final iv = enc.IV.fromSecureRandom(12);
+    final iv = enc.IV.fromSecureRandom(StorageConstants.aesGcmIvLength);
     final encrypted = encrypter.encryptBytes(keyToEncrypt.bytes, iv: iv);
     
     // 格式: IV (16 bytes) + Ciphertext

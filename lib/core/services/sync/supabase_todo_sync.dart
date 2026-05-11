@@ -10,6 +10,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../repositories/todo_repository.dart';
 import '../../../models/todo.dart';
 
+import '../../constants/sync_constants.dart';
 import 'sync_models.dart';
 import 'supabase_retry_wrapper.dart';
 import 'supabase_deletion_sync.dart';
@@ -87,8 +88,8 @@ class SupabaseTodoSync {
 
   Future<void> _pullTodos(List<String> idsToFetch, String userId, Set<String> existingLocalIds) async {
     int pullCount = 0;
-    for (var i = 0; i < idsToFetch.length; i += 50) {
-      final chunk = idsToFetch.sublist(i, i + 50 > idsToFetch.length ? idsToFetch.length : i + 50);
+    for (var i = 0; i < idsToFetch.length; i += SyncConstants.supabaseBatchSize) {
+      final chunk = idsToFetch.sublist(i, i + SyncConstants.supabaseBatchSize > idsToFetch.length ? idsToFetch.length : i + SyncConstants.supabaseBatchSize);
       final List<dynamic> cloudUpdates = await _retry.withRetry(
         operation: () => _supabase.from('todos').select().inFilter('id', chunk).eq('user_id', userId),
         operationName: '拉取待办详情',
@@ -110,7 +111,7 @@ class SupabaseTodoSync {
           dueDate: data['due_date'] != null ? DateTime.parse(data['due_date']).toLocal() : null,
           isCompleted: data['is_completed'] ?? false,
           isDeleted: data['is_deleted'] ?? false,
-          sortOrder: (data['sort_order'] as num?)?.toDouble() ?? 0.0,
+          sortOrder: (data['sort_order'] as num?)?.toDouble() ?? SyncConstants.defaultSortOrder,
           subTasks: parsedSubTasks,
         );
 

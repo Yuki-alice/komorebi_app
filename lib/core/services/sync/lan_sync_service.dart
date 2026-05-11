@@ -8,6 +8,8 @@ import 'package:shelf/shelf_io.dart' as shelf_io;
 import 'package:shelf_router/shelf_router.dart';
 import 'package:isar/isar.dart';
 
+import '../../constants/sync_constants.dart';
+
 // 🌟 引入路径处理库
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
@@ -78,7 +80,7 @@ class LanSyncService extends ChangeNotifier {
     }
     _discoveredDevices.clear();
     notifyListeners();
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future.delayed(SyncConstants.lanRadarRestartDelay);
     await _startRadar();
   }
 
@@ -139,7 +141,7 @@ class LanSyncService extends ChangeNotifier {
     try {
       final uri = Uri.parse('http://$host:$port/sync/pull');
       final httpClient = HttpClient();
-      httpClient.connectionTimeout = const Duration(seconds: 10);
+      httpClient.connectionTimeout = SyncConstants.lanConnectionTimeout;
 
       final request = await httpClient.getUrl(uri);
       final response = await request.close();

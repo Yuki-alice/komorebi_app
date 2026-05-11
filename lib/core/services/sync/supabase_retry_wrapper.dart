@@ -5,12 +5,13 @@
 import 'dart:io';
 import 'dart:async';
 
+import '../../constants/sync_constants.dart';
 import 'sync_models.dart';
 
 class SupabaseRetryWrapper {
-  static const int maxRetryAttempts = 3;
-  static const Duration retryDelay = Duration(seconds: 2);
-  static const Duration networkTimeout = Duration(seconds: 15);
+  static const int maxRetryAttempts = SyncConstants.maxRetryAttempts;
+  static const Duration retryDelay = SyncConstants.retryDelay;
+  static const Duration networkTimeout = SyncConstants.networkTimeout;
 
   const SupabaseRetryWrapper();
 
@@ -66,7 +67,7 @@ class SupabaseRetryWrapper {
       if (attempts < maxAttempts) {
         SyncLogger.info('RETRY', '[$operationName] ${delay.inSeconds}秒后重试...');
         await Future.delayed(delay);
-        delay = Duration(milliseconds: (delay.inMilliseconds * 1.5).round());
+        delay = Duration(milliseconds: (delay.inMilliseconds * SyncConstants.backoffMultiplier).round());
       }
     }
 

@@ -14,6 +14,7 @@ import '../../repositories/note_repository.dart';
 import '../../repositories/category_repository.dart';
 import '../../repositories/tag_repository.dart';
 import '../../repositories/todo_repository.dart';
+import '../../constants/sync_constants.dart';
 import 'sync_models.dart';
 
 class WebDavSyncService {
@@ -362,7 +363,7 @@ class WebDavSyncService {
       debugPrint('🟢 [SYNC-WEBDAV] Categories 增量推送: ${pushCats.length} 条');
 
       return {
-        'version': 2,
+        'version': SyncConstants.dataFormatVersion,
         'exportAt': DateTime.now().toIso8601String(),
         'notes': pushNotes,
         'todos': pushTodos,
@@ -373,7 +374,7 @@ class WebDavSyncService {
 
     // 全量模式：直接序列化本地全部数据
     return {
-      'version': 2,
+      'version': SyncConstants.dataFormatVersion,
       'exportAt': DateTime.now().toIso8601String(),
       'notes': _noteRepo.getAllNotes().map(_noteToMap).toList(),
       'todos': _todoRepo.getAllTodos().map(_todoToMap).toList(),
@@ -473,7 +474,7 @@ class WebDavSyncService {
     updatedAt: DateTime.parse(m['updatedAt']),
     tagIds: List<String>.from(m['tagIds'] ?? []),
     categoryId: m['categoryId'],
-    version: m['version'] ?? 1,
+    version: m['version'] ?? SyncConstants.defaultVersion,
     lastModifiedBy: m['lastModifiedBy'],
     isPinned: m['isPinned'] ?? false,
     isDeleted: m['isDeleted'] ?? false,
@@ -501,9 +502,9 @@ class WebDavSyncService {
     updatedAt: DateTime.parse(m['updatedAt']),
     description: m['description'] ?? '',
     dueDate: m['dueDate'] != null ? DateTime.parse(m['dueDate']) : null,
-    sortOrder: m['sortOrder'] ?? 0.0,
+    sortOrder: m['sortOrder'] ?? SyncConstants.defaultSortOrder,
     categoryId: m['categoryId'],
-    version: m['version'] ?? 1,
+    version: m['version'] ?? SyncConstants.defaultVersion,
     lastModifiedBy: m['lastModifiedBy'],
     isDeleted: m['isDeleted'] ?? false,
     subTasks:
@@ -527,7 +528,7 @@ class WebDavSyncService {
     name: m['name'],
     color: m['color'],
     icon: m['icon'],
-    sortOrder: m['sortOrder'] ?? 0.0,
+    sortOrder: m['sortOrder'] ?? SyncConstants.defaultSortOrder,
     isDeleted: m['isDeleted'] ?? false,
     createdAt: DateTime.parse(m['createdAt']),
     updatedAt: DateTime.parse(m['updatedAt']),
