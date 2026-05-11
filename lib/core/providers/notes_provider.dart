@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:isar/isar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
@@ -12,6 +11,7 @@ import '../../models/tag.dart';
 import '../../core/services/image_storage_service.dart';
 import '../../core/services/supabase_sync_service.dart';
 import '../../core/services/webdav_sync_service.dart';
+import '../init/app_initializer.dart';
 import '../repositories/category_repository.dart';
 import '../repositories/tag_repository.dart';
 
@@ -164,7 +164,12 @@ class NotesProvider with ChangeNotifier, WidgetsBindingObserver {
       final syncMode = prefs.getString('sync_mode') ?? 'supabase';
 
       if (syncMode == 'webdav') {
-        final webDavService = WebDavSyncService(Isar.getInstance()!);
+        final webDavService = WebDavSyncService(
+          noteRepository: _repository,
+          categoryRepository: _categoryRepository,
+          tagRepository: _tagRepository,
+          todoRepository: AppInitializer.todoRepo,
+        );
         await webDavService.syncAll();
         _plainTextCache.clear();
       } else {
@@ -462,6 +467,7 @@ class NotesProvider with ChangeNotifier, WidgetsBindingObserver {
       id: const Uuid().v4(),
       name: name,
       createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
     );
     await _tagRepository.addTag(tag);
     loadNotes();

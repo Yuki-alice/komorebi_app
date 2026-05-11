@@ -7,7 +7,7 @@ import '../../core/repositories/todo_repository.dart';
 import '../../models/todo.dart';
 import '../../core/services/supabase_sync_service.dart';
 import '../../core/services/webdav_sync_service.dart';
-import 'package:isar/isar.dart';
+import '../init/app_initializer.dart';
 
 enum TodoSyncState { idle, syncing, success, error, unauthenticated }
 
@@ -88,7 +88,12 @@ class TodosProvider with ChangeNotifier, WidgetsBindingObserver {
         // =====================================
         // 🚀 路由 A：WebDAV 引擎
         // =====================================
-        final webDavService = WebDavSyncService(Isar.getInstance()!);
+        final webDavService = WebDavSyncService(
+          noteRepository: AppInitializer.noteRepo,
+          categoryRepository: AppInitializer.categoryRepo,
+          tagRepository: AppInitializer.tagRepo,
+          todoRepository: _repository,
+        );
         await webDavService.syncAll();
 
       } else {
