@@ -8,6 +8,7 @@ import '../../models/todo.dart';
 import '../../core/services/sync/supabase_sync_service.dart';
 import '../../core/services/sync/webdav_sync_service.dart';
 import '../init/app_initializer.dart';
+import '../constants/ui_constants.dart';
 
 enum TodoSyncState { idle, syncing, success, error, unauthenticated }
 
@@ -115,7 +116,7 @@ class TodosProvider with ChangeNotifier, WidgetsBindingObserver {
 
       _setSyncState(TodoSyncState.success);
       // 🌟 3秒后自动恢复为 idle 状态（与笔记模块统一）
-      Future.delayed(const Duration(seconds: 3), () {
+      Future.delayed(UiConstants.syncSuccessResetDelay, () {
         if (_syncState == TodoSyncState.success) {
           _setSyncState(TodoSyncState.idle);
         }
@@ -125,7 +126,7 @@ class TodosProvider with ChangeNotifier, WidgetsBindingObserver {
       debugPrint('❌ [SYNC-TODO] 同步引擎遭遇致命错误: $e');
       _setSyncState(TodoSyncState.error);
       // 🌟 5秒后自动恢复为 idle 状态（与笔记模块统一）
-      Future.delayed(const Duration(seconds: 5), () {
+      Future.delayed(UiConstants.syncErrorResetDelay, () {
         if (_syncState == TodoSyncState.error) {
           _setSyncState(TodoSyncState.idle);
         }
@@ -136,7 +137,7 @@ class TodosProvider with ChangeNotifier, WidgetsBindingObserver {
   void _triggerBackgroundSync() async{
     _syncTimer?.cancel();
     if(!await _isSyncAllowed()) return;
-    _syncTimer = Timer(const Duration(seconds: 3), () {
+    _syncTimer = Timer(UiConstants.backgroundSyncDebounceTodos, () {
       syncWithCloud();
     });
   }
@@ -196,7 +197,7 @@ void _applyFilters() {
     if (_searchQuery == query) return;
     _searchQuery = query;
     if (_debounceTimer?.isActive ?? false) _debounceTimer!.cancel();
-    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+    _debounceTimer = Timer(UiConstants.searchDebounce, () {
       _applyFilters();
     });
   }
@@ -210,7 +211,7 @@ void _applyFilters() {
   }) async {
     double newSortOrder = 0.0;
     if (activeTodos.isNotEmpty) {
-      newSortOrder = activeTodos.first.sortOrder - 100.0;
+      newSortOrder = activeTodos.first.sortOrder - UiConstants.todoSortOrderGap;
     }
 
     final todo = Todo(
@@ -282,7 +283,7 @@ void _applyFilters() {
 
     for (int i = 0; i < incompleteTodos.length; i++) {
       final todo = incompleteTodos[i];
-      final newOrder = i * 1000.0; // 重新分配权重
+      final newOrder = i * UiConstants.todoSortOrderWeight; // 重新分配权重
 
       if (todo.sortOrder != newOrder) {
         hasChanges = true;

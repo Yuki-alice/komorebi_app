@@ -11,6 +11,7 @@ import '../../../../core/services/security/privacy_service.dart';
 import '../../../../core/services/security/privacy_note_utils.dart';
 import '../../../../models/note.dart';
 
+import '../../../../core/constants/ui_constants.dart';
 import '../../utils/markdown_export_service.dart';
 import '../../utils/markdown_shortcut_service.dart';
 
@@ -144,7 +145,7 @@ class NoteEditorViewModel extends ChangeNotifier {
 
   void _scheduleAutoSave() {
     _autoSaveTimer?.cancel();
-    _autoSaveTimer = Timer(const Duration(seconds: 3), () {
+    _autoSaveTimer = Timer(UiConstants.autoSaveDebounce, () {
       if (isDirty) saveNote();
     });
   }

@@ -17,6 +17,7 @@ import '../repositories/tag_repository.dart';
 
 import '../../core/services/security/privacy_service.dart';
 import '../../utils/toast_utils.dart';
+import '../constants/ui_constants.dart';
 
 enum SyncState { idle, syncing, success, error, unauthenticated }
 
@@ -189,7 +190,7 @@ class NotesProvider with ChangeNotifier, WidgetsBindingObserver {
       _setSyncState(SyncState.success);
       
       // 🌟 3秒后自动恢复为 idle 状态
-      Future.delayed(const Duration(seconds: 3), () {
+      Future.delayed(UiConstants.syncSuccessResetDelay, () {
         if (_syncState == SyncState.success) {
           _setSyncState(SyncState.idle);
         }
@@ -205,7 +206,7 @@ class NotesProvider with ChangeNotifier, WidgetsBindingObserver {
       } else {
         _setSyncState(SyncState.error);
         // 🌟 5秒后自动恢复为 idle 状态
-        Future.delayed(const Duration(seconds: 5), () {
+        Future.delayed(UiConstants.syncErrorResetDelay, () {
           if (_syncState == SyncState.error) {
             _setSyncState(SyncState.idle);
           }
@@ -214,7 +215,7 @@ class NotesProvider with ChangeNotifier, WidgetsBindingObserver {
     } catch (e) {
       _setSyncState(SyncState.error);
       // 🌟 5秒后自动恢复为 idle 状态
-      Future.delayed(const Duration(seconds: 5), () {
+      Future.delayed(UiConstants.syncErrorResetDelay, () {
         if (_syncState == SyncState.error) {
           _setSyncState(SyncState.idle);
         }
@@ -225,7 +226,7 @@ class NotesProvider with ChangeNotifier, WidgetsBindingObserver {
   void _triggerBackgroundSync() async{
     _syncTimer?.cancel();
     if(!await _isSyncAllowed()) return;
-    _syncTimer = Timer(const Duration(seconds: 5), () {
+    _syncTimer = Timer(UiConstants.backgroundSyncDebounce, () {
       syncWithCloud();
     });
   }
@@ -286,7 +287,7 @@ class NotesProvider with ChangeNotifier, WidgetsBindingObserver {
     if (_searchQuery == query) return;
     _searchQuery = query;
     if (_debounceTimer?.isActive ?? false) _debounceTimer!.cancel();
-    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+    _debounceTimer = Timer(UiConstants.searchDebounce, () {
       _applyFilters();
     });
   }
@@ -392,7 +393,7 @@ class NotesProvider with ChangeNotifier, WidgetsBindingObserver {
     bool hasDeletedAny = false;
     final currentTrash = List<Note>.from(trashNotes);
     for (var note in currentTrash) {
-      if (now.difference(note.updatedAt).inDays >= 30) {
+      if (now.difference(note.updatedAt).inDays >= UiConstants.trashAutoCleanupDays) {
         await _repository.deleteNote(note.id);
         _plainTextCache.remove(note.id);
         hasDeletedAny = true;
@@ -440,7 +441,7 @@ class NotesProvider with ChangeNotifier, WidgetsBindingObserver {
     final now = DateTime.now();
     List<String> orphans = [];
     for (var tag in allTags) {
-      if (tag.isDeleted || (!usedTagIds.contains(tag.id) && now.difference(tag.createdAt).inMinutes > 60)) {
+      if (tag.isDeleted || (!usedTagIds.contains(tag.id) && now.difference(tag.createdAt).inMinutes > UiConstants.orphanTagGCMinutes)) {
         orphans.add(tag.id);
         await _tagRepository.deleteTag(tag.id);
       }

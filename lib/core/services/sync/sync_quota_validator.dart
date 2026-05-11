@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../../models/note.dart';
 import '../../../models/user_quota.dart';
+import '../../constants/sync_constants.dart';
 import '../storage/storage_quota_service.dart';
 
 /// 同步配额验证器
@@ -44,7 +45,7 @@ class SyncQuotaValidator {
     // 笔记内容大小
     for (final note in notes) {
       // 估算：内容长度 * 2（UTF-16）+ 元数据开销
-      totalBytesNeeded += (note.title.length + note.content.length) * 2 + 1024;
+      totalBytesNeeded += (note.title.length + note.content.length) * SyncConstants.utf16BytesPerChar + SyncConstants.noteMetadataOverheadBytes;
     }
 
     // 图片大小

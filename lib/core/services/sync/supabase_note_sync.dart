@@ -15,6 +15,7 @@ import '../storage/storage_quota_service.dart';
 import '../../../models/user_quota.dart';
 import '../../../models/note.dart';
 
+import '../../constants/sync_constants.dart';
 import 'sync_models.dart';
 import 'supabase_retry_wrapper.dart';
 import 'supabase_deletion_sync.dart';
@@ -180,8 +181,8 @@ class SupabaseNoteSync {
     List<Note> pulled = [];
     SyncLogger.info('PULL', '准备从云端拉取 ${idsToFetch.length} 条笔记内容...');
 
-    for (var i = 0; i < idsToFetch.length; i += 50) {
-      final chunk = idsToFetch.sublist(i, i + 50 > idsToFetch.length ? idsToFetch.length : i + 50);
+    for (var i = 0; i < idsToFetch.length; i += SyncConstants.supabaseBatchSize) {
+      final chunk = idsToFetch.sublist(i, i + SyncConstants.supabaseBatchSize > idsToFetch.length ? idsToFetch.length : i + SyncConstants.supabaseBatchSize);
 
       List<dynamic> cloudUpdates = [];
       try {
@@ -226,7 +227,7 @@ class SupabaseNoteSync {
             updatedAt: DateTime.parse(map['updated_at'].toString()).toLocal(),
             categoryId: map['category_id']?.toString(),
             tagIds: tagIds,
-            version: (map['version'] as int?) ?? 1,
+            version: (map['version'] as int?) ?? SyncConstants.defaultVersion,
             isPinned: map['is_pinned'] == true,
             isDeleted: map['is_deleted'] == true,
             isPrivate: map['is_private'] == true,
@@ -260,7 +261,7 @@ class SupabaseNoteSync {
       if (note != null && !note.isDeleted) {
         notesToPush.add(note);
         // 估算：标题 + 内容 + 元数据开销
-        totalBytesToPush += (note.title.length + note.content.length) * 2 + 2048;
+        totalBytesToPush += (note.title.length + note.content.length) * SyncConstants.utf16BytesPerChar + SyncConstants.noteMetadataOverheadBytes;
       }
     }
 
@@ -405,7 +406,7 @@ class SupabaseNoteSync {
         for (var item in data)
           item['id'].toString(): CloudNoteMeta(
             updatedAt: DateTime.parse(item['updated_at'].toString()).toLocal(),
-            version: (item['version'] as int?) ?? 1,
+            version: (item['version'] as int?) ?? SyncConstants.defaultVersion,
           )
       };
     } catch (e) {
