@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../../core/services/privacy_service.dart';
+import '../../../core/services/security/privacy_service.dart';
 
 /// 显示隐私解锁对话框
 /// 

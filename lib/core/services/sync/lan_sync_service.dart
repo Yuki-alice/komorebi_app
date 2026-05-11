@@ -13,10 +13,10 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 
 // 🌟 引入所有模型
-import '../../models/note.dart';
-import '../../models/todo.dart';
-import '../../models/category.dart';
-import '../../models/tag.dart';
+import '../../../models/note.dart';
+import '../../../models/todo.dart';
+import '../../../models/category.dart';
+import '../../../models/tag.dart';
 
 class LanSyncService extends ChangeNotifier {
   static const String _serviceType = '_komorebi._tcp';

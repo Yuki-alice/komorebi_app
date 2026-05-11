@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path_provider/path_provider.dart';
-import '../../../../../core/services/feedback_service.dart';
+import '../../../../../core/services/support/feedback_service.dart';
 import '../../../../../utils/toast_utils.dart';
 
 /// 用户反馈对话框

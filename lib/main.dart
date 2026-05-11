@@ -13,7 +13,7 @@ import 'core/providers/theme_provider.dart';
 import 'core/theme/app_theme.dart';
 import 'core/routes/app_routes.dart';
 import 'core/routes/app_router.dart';
-import 'core/services/data_migration_service.dart';
+import 'core/services/backup/data_migration_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {

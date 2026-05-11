@@ -12,7 +12,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../../../core/providers/notes_provider.dart';
 import '../../../../core/providers/theme_provider.dart';
-import '../../../../core/services/image_storage_service.dart';
+import '../../../../core/services/storage/image_storage_service.dart';
 import '../../../../models/note.dart';
 import '../../../../utils/toast_utils.dart';
 import '../viewmodels/note_editor_viewmodel.dart';

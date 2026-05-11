@@ -8,14 +8,14 @@ import '../../core/repositories/note_repository.dart';
 import '../../models/note.dart';
 import '../../models/category.dart';
 import '../../models/tag.dart';
-import '../../core/services/image_storage_service.dart';
-import '../../core/services/supabase_sync_service.dart';
-import '../../core/services/webdav_sync_service.dart';
+import '../../core/services/storage/image_storage_service.dart';
+import '../../core/services/sync/supabase_sync_service.dart';
+import '../../core/services/sync/webdav_sync_service.dart';
 import '../init/app_initializer.dart';
 import '../repositories/category_repository.dart';
 import '../repositories/tag_repository.dart';
 
-import '../../core/services/privacy_service.dart';
+import '../../core/services/security/privacy_service.dart';
 import '../../utils/toast_utils.dart';
 
 enum SyncState { idle, syncing, success, error, unauthenticated }

@@ -14,7 +14,7 @@ import '../../../../core/providers/quota_provider.dart';
 import '../../../../core/routes/app_routes.dart';
 import '../../../../utils/toast_utils.dart';
 import '../../../../widgets/common/dialogs/app_dialog.dart';
-import '../../../../core/services/local_backup_service.dart';
+import '../../../../core/services/backup/local_backup_service.dart';
 import 'webdav_config_page.dart';
 import 'quota_settings_page.dart';
 

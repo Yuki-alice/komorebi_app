@@ -6,7 +6,7 @@ import '../../../../../utils/date_formatter.dart';
 import '../../viewmodels/note_editor_viewmodel.dart';
 import '../editor_core/quill_styles_config.dart';
 
-import '../../../../../core/services/image_storage_service.dart';
+import '../../../../../core/services/storage/image_storage_service.dart';
 import '../note_image_embed.dart';
 
 class DesktopCraftReaderLayout extends StatelessWidget {

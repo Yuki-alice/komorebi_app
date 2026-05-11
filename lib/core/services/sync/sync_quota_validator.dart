@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 
-import '../../models/note.dart';
-import '../../models/user_quota.dart';
-import 'storage_quota_service.dart';
+import '../../../models/note.dart';
+import '../../../models/user_quota.dart';
+import '../storage/storage_quota_service.dart';
 
 /// 同步配额验证器
 /// 

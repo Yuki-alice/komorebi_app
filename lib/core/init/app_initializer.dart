@@ -11,9 +11,9 @@ import '../repositories/category_repository.dart';
 import '../repositories/note_repository.dart';
 import '../repositories/tag_repository.dart';
 import '../repositories/todo_repository.dart';
-import '../services/privacy_service.dart';
-import '../services/supabase_sync_service.dart';
-import '../services/data_migration_service.dart';
+import '../services/security/privacy_service.dart';
+import '../services/sync/supabase_sync_service.dart';
+import '../services/backup/data_migration_service.dart';
 import '../theme/app_fonts.dart';
 
 class AppInitializer {

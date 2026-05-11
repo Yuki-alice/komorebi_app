@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
-import '../../../../../core/services/image_storage_service.dart';
+import '../../../../../core/services/storage/image_storage_service.dart';
 import '../note_image_embed.dart';
 
 class SharedNoteRichCard extends StatelessWidget {

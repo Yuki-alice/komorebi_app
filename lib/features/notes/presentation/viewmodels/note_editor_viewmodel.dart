@@ -6,9 +6,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:image_picker/image_picker.dart';
 import '../../../../core/providers/notes_provider.dart';
-import '../../../../core/services/image_storage_service.dart';
-import '../../../../core/services/privacy_service.dart';
-import '../../../../core/utils/privacy_note_utils.dart';
+import '../../../../core/services/storage/image_storage_service.dart';
+import '../../../../core/services/security/privacy_service.dart';
+import '../../../../core/services/security/privacy_note_utils.dart';
 import '../../../../models/note.dart';
 
 import '../../utils/markdown_export_service.dart';

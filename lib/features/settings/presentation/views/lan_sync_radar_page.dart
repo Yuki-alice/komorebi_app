@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../../core/providers/auth_provider.dart';
 import '../../../../core/providers/notes_provider.dart';
 import '../../../../core/providers/todos_provider.dart';
-import '../../../../core/services/lan_sync_service.dart';
+import '../../../../core/services/sync/lan_sync_service.dart';
 import '../../../../utils/toast_utils.dart';
 
 class LanSyncRadarPage extends StatefulWidget {

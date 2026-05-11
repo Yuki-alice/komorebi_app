@@ -3,8 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 
-import '../../models/user_quota.dart';
-import '../../models/note.dart';
+import '../../../models/user_quota.dart';
+import '../../../models/note.dart';
 
 /// 存储配额服务
 /// 

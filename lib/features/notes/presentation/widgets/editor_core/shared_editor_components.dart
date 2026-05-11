@@ -8,7 +8,7 @@ import '../../../../../core/providers/notes_provider.dart';
 import '../../../../../core/theme/app_fonts.dart';
 import '../../views/note_editor_page.dart';
 
-import '../../../../../core/services/image_storage_service.dart';
+import '../../../../../core/services/storage/image_storage_service.dart';
 import '../../viewmodels/note_editor_viewmodel.dart';
 import '../note_image_embed.dart';
 

@@ -5,8 +5,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 import '../../core/repositories/todo_repository.dart';
 import '../../models/todo.dart';
-import '../../core/services/supabase_sync_service.dart';
-import '../../core/services/webdav_sync_service.dart';
+import '../../core/services/sync/supabase_sync_service.dart';
+import '../../core/services/sync/webdav_sync_service.dart';
 import '../init/app_initializer.dart';
 
 enum TodoSyncState { idle, syncing, success, error, unauthenticated }

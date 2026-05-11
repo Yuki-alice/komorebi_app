@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../../core/services/feedback_service.dart';
+import '../../../../core/services/support/feedback_service.dart';
 import '../../../../utils/date_formatter.dart';
 import '../widgets/dialogs/feedback_dialog.dart';
 

@@ -8,7 +8,7 @@ import 'notes_provider.dart';
 import 'todos_provider.dart';
 import 'privacy_mode_provider.dart';
 import 'quota_provider.dart';
-import '../services/lan_sync_service.dart';
+import '../services/sync/lan_sync_service.dart';
 
 class GlobalProviders extends StatelessWidget {
   final Widget child;

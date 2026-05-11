@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
-import '../../../../../core/services/glm_ai_service.dart';
+import '../../../../../core/services/ai/glm_ai_service.dart';
 
 class AiAssistantSheet extends StatefulWidget {
   final String text;

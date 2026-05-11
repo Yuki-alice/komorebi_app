@@ -10,8 +10,8 @@ import '../../../../core/providers/todos_provider.dart';
 import '../../../../core/providers/auth_provider.dart';
 import '../../../../utils/toast_utils.dart';
 import '../../../../widgets/common/dialogs/app_dialog.dart';
-import '../../../../core/services/local_backup_service.dart';
-import '../../../../core/services/privacy_service.dart';
+import '../../../../core/services/backup/local_backup_service.dart';
+import '../../../../core/services/security/privacy_service.dart';
 import '../../../../models/note.dart'; // 🌟 需要引入 Note 模型来解析图片路径
 
 class StorageSettingsPage extends StatefulWidget {

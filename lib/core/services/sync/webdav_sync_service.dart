@@ -6,14 +6,14 @@ import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webdav_client/webdav_client.dart' as webdav;
 
-import '../../models/note.dart';
-import '../../models/todo.dart';
-import '../../models/category.dart';
-import '../../models/tag.dart';
-import '../repositories/note_repository.dart';
-import '../repositories/category_repository.dart';
-import '../repositories/tag_repository.dart';
-import '../repositories/todo_repository.dart';
+import '../../../models/note.dart';
+import '../../../models/todo.dart';
+import '../../../models/category.dart';
+import '../../../models/tag.dart';
+import '../../repositories/note_repository.dart';
+import '../../repositories/category_repository.dart';
+import '../../repositories/tag_repository.dart';
+import '../../repositories/todo_repository.dart';
 
 class WebDavSyncService {
   final NoteRepository _noteRepo;

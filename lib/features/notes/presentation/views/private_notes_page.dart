@@ -8,7 +8,7 @@ import 'package:animations/animations.dart';
 
 import '../../../../core/providers/notes_provider.dart';
 import '../../../../core/providers/privacy_mode_provider.dart';
-import '../../../../core/services/privacy_service.dart';
+import '../../../../core/services/security/privacy_service.dart';
 import '../../../../core/routes/app_routes.dart';
 import '../../../../utils/app_feedback.dart';
 import '../../../../utils/toast_utils.dart';

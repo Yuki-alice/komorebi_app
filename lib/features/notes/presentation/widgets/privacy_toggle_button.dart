@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../../../core/services/privacy_service.dart';
+import '../../../../core/services/security/privacy_service.dart';
 import '../../../../widgets/common/dialogs/privacy_unlock_dialog.dart';
 
 /// 隐私模式切换按钮

@@ -9,7 +9,7 @@ import 'package:gal/gal.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
-import '../../../../core/services/image_storage_service.dart';
+import '../../../../core/services/storage/image_storage_service.dart';
 import '../../../../utils/toast_utils.dart';
 import '../widgets/note_image_embed.dart';
 

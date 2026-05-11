@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/privacy_service.dart';
+import '../services/security/privacy_service.dart';
 
 /// 隐私模式状态管理
 /// 

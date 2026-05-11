@@ -7,7 +7,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../models/note.dart';
+import '../../../models/note.dart';
 
 class ImageStorageService {
   static const String _imageDirName = 'note_images';

@@ -3,7 +3,7 @@ import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 
-import '../../../../../core/services/image_storage_service.dart';
+import '../../../../../core/services/storage/image_storage_service.dart';
 import '../../../../../utils/date_formatter.dart';
 
 import '../../viewmodels/note_editor_viewmodel.dart';

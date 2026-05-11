@@ -10,10 +10,10 @@ import 'package:file_picker/file_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../models/note.dart';
-import '../../models/tag.dart';
-import '../../models/todo.dart';
-import '../../models/category.dart';
+import '../../../models/note.dart';
+import '../../../models/tag.dart';
+import '../../../models/todo.dart';
+import '../../../models/category.dart';
 
 
 class LocalBackupService {

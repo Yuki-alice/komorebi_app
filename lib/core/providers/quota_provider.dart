@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../models/user_quota.dart';
-import '../services/storage_quota_service.dart';
+import '../services/storage/storage_quota_service.dart';
 import '../../features/settings/presentation/views/quota_settings_page.dart';
 
 /// 配额状态管理 Provider

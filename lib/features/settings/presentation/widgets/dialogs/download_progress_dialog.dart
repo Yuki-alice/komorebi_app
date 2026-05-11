@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import '../../../../../../core/services/update_download_service.dart';
+import '../../../../../../core/services/support/update_download_service.dart';
 
 /// 下载进度对话框
 class DownloadProgressDialog extends StatefulWidget {

@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:komorebi/core/services/privacy_service.dart';
+import 'package:komorebi/core/services/security/privacy_service.dart';
 
 /// PrivacyService 依赖 FlutterSecureStorage 和 HapticFeedback 的平台通道。
 /// 测试前需注册 mock handler 以避免 MissingPluginException。

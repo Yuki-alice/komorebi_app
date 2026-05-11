@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import '../../../../../core/services/feedback_service.dart';
-import '../../../../../core/services/update_download_service.dart';
+import '../../../../../core/services/support/feedback_service.dart';
+import '../../../../../core/services/support/update_download_service.dart';
 import 'download_progress_dialog.dart';
 
 /// 应用更新对话框
