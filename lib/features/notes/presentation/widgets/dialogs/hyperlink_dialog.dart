@@ -28,7 +28,8 @@ class _HyperlinkDialogState extends State<HyperlinkDialog> with SingleTickerProv
     _urlController = TextEditingController(text: widget.initialUrl?.startsWith('http') == true ? widget.initialUrl : '');
     _searchController = TextEditingController();
 
-    if (widget.initialUrl?.startsWith('notesync://') == true) {
+    if (widget.initialUrl?.startsWith('komorebi://') == true ||
+        widget.initialUrl?.startsWith('notesync://') == true) {
       _tabController.index = 1;
     }
   }
@@ -151,7 +152,7 @@ class _HyperlinkDialogState extends State<HyperlinkDialog> with SingleTickerProv
             itemCount: filteredNotes.length,
             itemBuilder: (context, i) {
               final note = filteredNotes[i];
-              final isSelected = _searchQuery == 'notesync://note/${note.id}';
+              final isSelected = _searchQuery == 'komorebi://note/${note.id}';
               return ListTile(
                 dense: true,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -161,7 +162,7 @@ class _HyperlinkDialogState extends State<HyperlinkDialog> with SingleTickerProv
                 selectedTileColor: colorScheme.primaryContainer.withValues(alpha: 0.4),
                 onTap: () {
                   setState(() {
-                    _searchQuery = 'notesync://note/${note.id}';
+                    _searchQuery = 'komorebi://note/${note.id}';
                     if (_textController.text.isEmpty) _textController.text = note.title.isEmpty ? '无标题文档' : note.title;
                   });
                 },

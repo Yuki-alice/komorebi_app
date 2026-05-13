@@ -102,8 +102,8 @@ class _EditorQuillAreaState extends State<EditorQuillArea> {
 
           // 【强力剥离】无论 Quill 怎么污染（https://notesync//note/ 等）
           // 我们直接用正则锁定 "notesync" 后面跟着的 UUID！
-          if (url.contains('notesync')) {
-            final RegExp regExp = RegExp(r'notesync[:/]*note/([a-zA-Z0-9\-]+)');
+          if (url.contains('komorebi') || url.contains('notesync')) {
+            final RegExp regExp = RegExp(r'(?:komorebi|notesync)[:/]*note/([a-zA-Z0-9\-]+)');
             final match = regExp.firstMatch(url);
 
             if (match != null) {
