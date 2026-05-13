@@ -341,7 +341,7 @@ class _ShareDialogState extends State<ShareDialog> {
 
       if (_isMobile) {
         final directory = await getTemporaryDirectory();
-        final filePath = '${directory.path}/${widget.noteTitle.isEmpty ? 'NoteSync_Export' : widget.noteTitle}.pdf';
+        final filePath = '${directory.path}/${widget.noteTitle.isEmpty ? 'Komorebi_Export' : widget.noteTitle}.pdf';
         await File(filePath).writeAsBytes(pdfBytes);
         await Share.shareXFiles([XFile(filePath)], text: '分享 PDF 文档');
       } else {

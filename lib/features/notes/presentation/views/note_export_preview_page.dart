@@ -201,7 +201,7 @@ class _NoteExportPreviewPageState extends State<NoteExportPreviewPage> {
                       Icon(Icons.auto_awesome_rounded, size: 18, color: theme.colorScheme.primary),
                       const SizedBox(width: 8),
                       Text(
-                        'Powered by NoteSync',
+                        'Powered by Komorebi',
                         style: TextStyle(
                           color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                           fontSize: 16,
@@ -330,7 +330,7 @@ class _NoteExportPreviewPageState extends State<NoteExportPreviewPage> {
                         if (mounted) ToastUtils.showSuccess(context, '✨ 长图已保存到相册');
                       } else {
                         final dlDir = await getDownloadsDirectory();
-                        await File(imagePath).copy('${dlDir?.path}/NoteSync_${DateTime.now().millisecondsSinceEpoch}.png');
+                        await File(imagePath).copy('${dlDir?.path}/Komorebi_${DateTime.now().millisecondsSinceEpoch}.png');
                         if (mounted) ToastUtils.showSuccess(context, '✨ 长图已保存到下载文件夹');
                       }
                     } catch (e) {

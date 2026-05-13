@@ -115,7 +115,7 @@ class _NoteEditorShellState extends State<_NoteEditorShell> {
         final mdContent = viewModel.generateMarkdownContent();
         Directory? dir =
             Platform.isAndroid
-                ? Directory('/storage/emulated/0/Download/NoteSync')
+                ? Directory('/storage/emulated/0/Download/Komorebi')
                 : await getDownloadsDirectory();
         if (Platform.isIOS) dir = await getApplicationDocumentsDirectory();
 

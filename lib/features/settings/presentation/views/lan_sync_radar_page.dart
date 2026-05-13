@@ -37,7 +37,7 @@ class _LanSyncRadarPageState extends State<LanSyncRadarPage> {
     final lanSync = context.watch<LanSyncService>();
     final auth = context.read<AuthProvider>();
 
-    final myDeviceName = '${auth.displayName.isNotEmpty ? auth.displayName : "我"}的 NoteSync';
+    final myDeviceName = '${auth.displayName.isNotEmpty ? auth.displayName : "我"}的 Komorebi';
 
     // 🌟 核心修复：提前过滤掉“自己”，并且【忽略大小写】比对
     final validDevices = lanSync.discoveredDevices.where((device) {

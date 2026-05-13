@@ -74,7 +74,7 @@ class SharedNoteRichCard extends StatelessWidget {
                     Icon(Icons.calendar_today_rounded, size: 16, color: colorScheme.outline),
                     const SizedBox(width: 8),
                     Text(
-                      'Generated on NoteSync',
+                      'Generated on Komorebi',
                       style: TextStyle(color: colorScheme.outline, fontSize: 15, fontWeight: FontWeight.w500),
                     ),
                   ],
@@ -109,7 +109,7 @@ class SharedNoteRichCard extends StatelessWidget {
               Icon(Icons.auto_awesome_rounded, size: 18, color: colorScheme.primary),
               const SizedBox(width: 8),
               Text(
-                'Powered by NoteSync',
+                'Powered by Komorebi',
                 style: TextStyle(
                   color: colorScheme.onSurface.withValues(alpha: 0.6),
                   fontSize: 16,
