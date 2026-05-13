@@ -13,7 +13,6 @@ import 'core/providers/theme_provider.dart';
 import 'core/theme/app_theme.dart';
 import 'core/routes/app_routes.dart';
 import 'core/routes/app_router.dart';
-import 'core/services/backup/data_migration_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
@@ -43,28 +42,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  bool _migrationChecked = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _checkMigration();
-  }
-
-  Future<void> _checkMigration() async {
-    // 延迟一点确保 BuildContext 可用
-    await Future.delayed(const Duration(milliseconds: 500));
-    if (!mounted) return;
-
-    final needsMigration = await DataMigrationService.needsMigration();
-    if (needsMigration && mounted) {
-      await DataMigrationService.showMigrationDialog(context);
-    }
-    setState(() {
-      _migrationChecked = true;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final themeProvider = context.watch<ThemeProvider>();
