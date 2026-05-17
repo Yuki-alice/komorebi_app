@@ -7,6 +7,10 @@ import '../../models/category.dart';
 import '../../models/tag.dart';
 
 class SimpleDatabaseService {
+  static final SimpleDatabaseService _instance = SimpleDatabaseService._internal();
+  factory SimpleDatabaseService() => _instance;
+  SimpleDatabaseService._internal();
+
   late Isar _isar;
 
   Isar get isar => _isar;
@@ -22,7 +26,6 @@ class SimpleDatabaseService {
     ], directory: dir.path);
   }
 
-  /// 关闭 Isar 数据库连接，释放资源。
   Future<void> close() async {
     if (_isar.isOpen) {
       await _isar.close();

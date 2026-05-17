@@ -13,25 +13,15 @@ import 'core/providers/theme_provider.dart';
 import 'core/theme/app_theme.dart';
 import 'core/routes/app_routes.dart';
 import 'core/routes/app_router.dart';
+import 'core/services/network/network_service.dart';
+import 'core/services/network/offline_queue.dart';
+import 'core/widgets/splash_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
-  try {
-    // 0. 确保 Flutter 绑定初始化
-    WidgetsFlutterBinding.ensureInitialized();
-
-    // 1. 加载环境变量
-    await dotenv.load(fileName: ".env");
-    debugPrint('✅ main: 环境变量加载成功');
-
-    // 2. 执行全局底层初始化 (数据库、云端、窗口)
-    await AppInitializer.init();
-
-    // 2. 注入全局 Provider 并运行 App
-    runApp(const GlobalProviders(child: MyApp()));
-  } catch (e) {
-    runApp(ErrorApp(error: e.toString()));
-  }
+  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
+  runApp(const GlobalProviders(child: MyApp()));
 }
 
 class MyApp extends StatefulWidget {
@@ -42,6 +32,27 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  bool _isInitializing = true;
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeApp();
+  }
+
+  Future<void> _initializeApp() async {
+    await AppInitializer.init();
+    await Future.wait([
+      NetworkService().init(),
+      OfflineQueue().init(),
+    ]);
+    if (mounted) {
+      setState(() => _isInitializing = false);
+      _navigatorKey.currentState?.pushReplacementNamed(AppRoutes.home);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final themeProvider = context.watch<ThemeProvider>();
@@ -68,63 +79,61 @@ class _MyAppState extends State<MyApp> {
           title: 'Komorebi',
           debugShowCheckedModeBanner: false,
           themeMode: themeProvider.themeMode,
-          initialRoute: AppRoutes.home,
-          onGenerateRoute: AppRouter.onGenerateRoute,
-
-          // 生成深浅两套解耦的主题
+          navigatorKey: _navigatorKey,
+          home: _isInitializing
+              ? SplashScreen(onAnimationComplete: _initializeApp)
+              : const SizedBox.shrink(),
+          initialRoute: _isInitializing ? null : AppRoutes.home,
+          onGenerateRoute: _isInitializing ? null : AppRouter.onGenerateRoute,
           theme: AppTheme.getTheme(context: context, seedColor: themeProvider.themeColor, isDark: false),
           darkTheme: AppTheme.getTheme(context: context, seedColor: themeProvider.themeColor, isDark: true),
+          builder: (context, child) {
+            final isDesktopOS = !kIsWeb && (Platform.isWindows || Platform.isMacOS || Platform.isLinux);
+            if (!isDesktopOS) return child!;
 
-        // 全局窗口包裹器：为桌面端统一添加控制栏
-        builder: (context, child) {
-          final isDesktopOS = !kIsWeb && (Platform.isWindows || Platform.isMacOS || Platform.isLinux);
-          if (!isDesktopOS) return child!; // 手机平板直接原样返回
-
-          final theme = Theme.of(context);
-          return Scaffold(
-            backgroundColor: theme.colorScheme.surface,
-            body: Column(
-              children: [
-                SizedBox(
-                  height: 38,
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: DragToMoveArea(
-                          child: Container(
-                            color: Colors.transparent,
-                            padding: const EdgeInsets.only(left: 16),
-                            alignment: Alignment.centerLeft,
-                            child: Row(
-                              children: [
-                                Text(
-                                  'Komorebi',
-                                  style: theme.textTheme.titleSmall?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 0.5,
-                                    color: theme.colorScheme.onSurfaceVariant,
+            final theme = Theme.of(context);
+            return Scaffold(
+              backgroundColor: theme.colorScheme.surface,
+              body: Column(
+                children: [
+                  SizedBox(
+                    height: 38,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: DragToMoveArea(
+                            child: Container(
+                              color: Colors.transparent,
+                              padding: const EdgeInsets.only(left: 16),
+                              alignment: Alignment.centerLeft,
+                              child: Row(
+                                children: [
+                                  Text(
+                                    'Komorebi',
+                                    style: theme.textTheme.titleSmall?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 0.5,
+                                      color: theme.colorScheme.onSurfaceVariant,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      if (!Platform.isMacOS)
-                        SizedBox(
-                          width: 138,
-                          child: WindowCaption(brightness: theme.brightness, backgroundColor: Colors.transparent),
-                        ),
-                    ],
+                        if (!Platform.isMacOS)
+                          SizedBox(
+                            width: 138,
+                            child: WindowCaption(brightness: theme.brightness, backgroundColor: Colors.transparent),
+                          ),
+                      ],
+                    ),
                   ),
-                ),
-                Expanded(child: ClipRect(child: child!)),
-              ],
-            ),
-          );
-        },
-
-          // 国际化支持
+                  Expanded(child: ClipRect(child: child!)),
+                ],
+              ),
+            );
+          },
           localizationsDelegates: const [
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
