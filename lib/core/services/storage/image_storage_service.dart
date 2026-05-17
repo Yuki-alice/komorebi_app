@@ -9,6 +9,63 @@ import 'package:uuid/uuid.dart';
 
 import '../../../models/note.dart';
 
+/// 🗜️ 图片压缩参数（用于 isolate 通信）
+class _CompressParams {
+  final Uint8List bytes;
+  final String ext;
+  _CompressParams(this.bytes, this.ext);
+}
+
+/// 🗜️ 图片压缩结果（用于 isolate 通信）
+class _CompressResult {
+  final Uint8List? encodedBytes;
+  final int width;
+  final int height;
+  _CompressResult(this.encodedBytes, this.width, this.height);
+}
+
+/// 🗜️ 顶层函数：在 isolate 中执行图片压缩
+/// 注意：此函数必须为 top-level function，才能被 compute() 调用
+Uint8List? _compressImageInIsolate(_CompressParams params) {
+  try {
+    final originalImage = img.decodeImage(params.bytes);
+    if (originalImage == null) return null;
+
+    // 计算新尺寸（保持比例，最大边不超过 1280）
+    int newWidth = originalImage.width;
+    int newHeight = originalImage.height;
+    const maxDimension = 1280;
+
+    if (newWidth > maxDimension || newHeight > maxDimension) {
+      if (newWidth > newHeight) {
+        newHeight = (newHeight * maxDimension / newWidth).round();
+        newWidth = maxDimension;
+      } else {
+        newWidth = (newWidth * maxDimension / newHeight).round();
+        newHeight = maxDimension;
+      }
+    }
+
+    // 调整大小，cubic 插值比 linear 更清晰
+    final resizedImage = img.copyResize(
+      originalImage,
+      width: newWidth,
+      height: newHeight,
+      interpolation: img.Interpolation.cubic,
+    );
+
+    // 编码
+    if (params.ext == '.png') {
+      return img.encodePng(resizedImage, level: 6);
+    } else {
+      return img.encodeJpg(resizedImage, quality: 70);
+    }
+  } catch (e) {
+    debugPrint('⚠️ [Isolate] 图片压缩失败: $e');
+    return null;
+  }
+}
+
 class ImageStorageService {
   static const String _imageDirName = 'note_images';
 
@@ -111,44 +168,14 @@ class ImageStorageService {
         return;
       }
 
-      // 计算新尺寸（保持比例，最大边不超过 1280）
-      int newWidth = originalImage.width;
-      int newHeight = originalImage.height;
-      const maxDimension = 1280;
-
-      if (newWidth > maxDimension || newHeight > maxDimension) {
-        if (newWidth > newHeight) {
-          newHeight = (newHeight * maxDimension / newWidth).round();
-          newWidth = maxDimension;
-        } else {
-          newWidth = (newWidth * maxDimension / newHeight).round();
-          newHeight = maxDimension;
-        }
-      }
-
-      // 调整大小，cubic 插值比 linear 更清晰
-      final resizedImage = img.copyResize(
-        originalImage,
-        width: newWidth,
-        height: newHeight,
-        interpolation: img.Interpolation.cubic,
-      );
-
-      // 编码并保存
-      Uint8List? encodedBytes;
-      if (ext == '.png') {
-        encodedBytes = img.encodePng(resizedImage, level: 6); // 压缩级别 0-9
-      } else {
-        // jpg/jpeg/webp 都使用 jpeg 编码（image 库不支持 webp 编码）
-        // quality 70 对笔记插图足够清晰，体积约 200-500KB
-        encodedBytes = img.encodeJpg(resizedImage, quality: 70);
-      }
+      // 🌟 使用 compute() 在 isolate 中执行压缩，避免阻塞主线程
+      final encodedBytes = await compute(_compressImageInIsolate, _CompressParams(bytes, ext));
 
       if (encodedBytes != null) {
         await File(targetPath).writeAsBytes(encodedBytes);
         final compressedSize = await File(targetPath).length();
         if (kDebugMode) {
-          print('✅ [Windows/Linux] 压缩完成: ${compressedSize / 1024} KB (${newWidth}x${newHeight})');
+          print('✅ [Windows/Linux] 压缩完成: ${compressedSize / 1024} KB');
         }
       } else {
         await imageFile.copy(targetPath);
