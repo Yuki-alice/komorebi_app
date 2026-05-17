@@ -93,19 +93,22 @@ class StorageQuotaService {
         }
       }
 
-      // 2. 计算图片大小（使用现有的 attachments 表）
-      final imagesResponse = await _supabase
-          .from('attachments')
-          .select('file_size')
-          .eq('user_id', userId);
-      
+      // 2. 计算图片大小（直接从 Supabase Storage 获取，比 attachments 表更准确）
       double imagesSizeMb = 0;
       int imageCount = 0;
-      if (imagesResponse != null) {
-        imageCount = (imagesResponse as List).length;
-        for (final img in imagesResponse) {
-          final fileSize = img['file_size'] as int? ?? 0;
-          imagesSizeMb += fileSize / (1024 * 1024);
+      try {
+        final storage = _supabase.storage.from('note_images');
+        final files = await storage.list(searchOptions: SearchOptions(limit: 1000));
+        
+        for (final file in files) {
+          if (file.name == '.emptyFolderPlaceholder' || file.name.startsWith('.')) continue;
+          imageCount++;
+          final metadata = file.metadata as Map<String, dynamic>?;
+          imagesSizeMb += ((metadata?['size'] as int?) ?? 0) / (1024 * 1024);
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          debugPrint('⚠️ 获取云端图片列表失败: $e');
         }
       }
 
