@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   app_links
+  connectivity_plus
   file_selector_windows
   flutter_secure_storage_windows
   gal
@@ -13,6 +14,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   permission_handler_windows
   screen_retriever
   share_plus
+  system_tray
   url_launcher_windows
   window_manager
 )

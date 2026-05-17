@@ -10,6 +10,7 @@ import '../../../../core/providers/notes_provider.dart';
 import '../../../../core/routes/app_routes.dart';
 import '../../../../models/note.dart';
 import '../../../../models/category.dart';
+import '../../../../core/services/network/network_service.dart';
 
 import '../../../../utils/app_feedback.dart';
 import '../../../../utils/toast_utils.dart';
@@ -595,38 +596,42 @@ class SyncStatusIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<NotesProvider>(
-      builder: (context, provider, child) {
+    return Consumer2<NotesProvider, NetworkService>(
+      builder: (context, provider, network, child) {
         final state = provider.syncState;
         final theme = Theme.of(context);
         Widget icon;
         String tooltip;
 
-        switch (state) {
-          case SyncState.unauthenticated:
-            icon = Icon(Icons.cloud_off_rounded, color: theme.colorScheme.outlineVariant, size: 20);
-            tooltip = "未登录，仅保存在本地";
-            break;
-          case SyncState.syncing:
-            icon = SizedBox(
-              width: 16, height: 16,
-              child: CircularProgressIndicator(strokeWidth: 2, color: theme.colorScheme.primary),
-            );
-            tooltip = "正在与云端同步...";
-            break;
-          case SyncState.success:
-            icon = const Icon(Icons.cloud_done_rounded, color: Colors.green, size: 20);
-            tooltip = "已保存到云端";
-            break;
-          case SyncState.error:
-            icon = Icon(Icons.cloud_off_rounded, color: theme.colorScheme.error, size: 20);
-            tooltip = "同步失败，请检查网络";
-            break;
-          case SyncState.idle:
-          default:
-            icon = Icon(Icons.cloud_queue_rounded, color: theme.colorScheme.onSurfaceVariant, size: 20);
-            tooltip = "已与云端同步";
-            break;
+        if (!network.isOnline) {
+          icon = Icon(Icons.cloud_off_rounded, color: Colors.orange, size: 20);
+          tooltip = "离线模式 - 本地操作将在网络恢复后自动同步";
+        } else {
+          switch (state) {
+            case SyncState.unauthenticated:
+              icon = Icon(Icons.cloud_off_rounded, color: theme.colorScheme.outlineVariant, size: 20);
+              tooltip = "未登录，仅保存在本地";
+              break;
+            case SyncState.syncing:
+              icon = SizedBox(
+                width: 16, height: 16,
+                child: CircularProgressIndicator(strokeWidth: 2, color: theme.colorScheme.primary),
+              );
+              tooltip = "正在与云端同步...";
+              break;
+            case SyncState.success:
+              icon = const Icon(Icons.cloud_done_rounded, color: Colors.green, size: 20);
+              tooltip = "已保存到云端";
+              break;
+            case SyncState.error:
+              icon = Icon(Icons.cloud_off_rounded, color: theme.colorScheme.error, size: 20);
+              tooltip = "同步失败，请检查网络";
+              break;
+            case SyncState.idle:
+              icon = Icon(Icons.cloud_queue_rounded, color: theme.colorScheme.onSurfaceVariant, size: 20);
+              tooltip = "已与云端同步";
+              break;
+          }
         }
 
         return Tooltip(
@@ -637,7 +642,7 @@ class SyncStatusIndicator extends StatelessWidget {
               return ScaleTransition(scale: animation, child: FadeTransition(opacity: animation, child: child));
             },
             child: KeyedSubtree(
-              key: ValueKey<SyncState>(state),
+              key: ValueKey<String>(!network.isOnline ? 'offline' : state.name),
               child: Padding(padding: const EdgeInsets.symmetric(horizontal: 8.0), child: icon),
             ),
           ),

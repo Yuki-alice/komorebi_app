@@ -54,7 +54,7 @@ class MainLayoutMobile extends StatelessWidget {
               onDestinationSelected: onDestinationSelected,
               destinations: const [
                 NavigationDestination(icon: Icon(Icons.description_outlined), selectedIcon: Icon(Icons.description_rounded), label: '笔记'),
-                NavigationDestination(icon: Icon(Icons.check_circle_outlined), selectedIcon: Icon(Icons.check_circle_rounded), label: '待办'),
+                NavigationDestination(icon: Icon(Icons.checklist_outlined), selectedIcon: Icon(Icons.checklist_rounded), label: '待办'),
               ],
             ),
           ),
