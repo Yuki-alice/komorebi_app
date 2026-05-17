@@ -60,6 +60,16 @@ class NotesProvider with ChangeNotifier, WidgetsBindingObserver {
   // 🌟 架构师特供：内存级私密笔记追踪器 (不污染数据库结构)
   final Set<String> _secretNoteIds = {};
 
+  // 🌟 初始化状态标志，防止 notifyListeners() 在 Widget 树就绪前触发
+  bool _isInitialized = false;
+
+  @override
+  void notifyListeners() {
+    if (_isInitialized) {
+      super.notifyListeners();
+    }
+  }
+
   void _setSyncState(SyncState state) {
     _syncState = state;
     notifyListeners();
@@ -71,9 +81,19 @@ class NotesProvider with ChangeNotifier, WidgetsBindingObserver {
     _dbSubscription = _repository.watchNotesChanged().listen((_) {
       loadNotes();
     });
-    loadNotes();
-    _cleanUpOldTrash();
-    syncWithCloud();
+
+    // 🌟 将异步操作从构造函数中移出，避免在 Widget 树就绪前触发 notifyListeners
+    Future.microtask(() async {
+      await loadNotes();
+      unawaited(_cleanUpOldTrash());
+      _isInitialized = true;
+      notifyListeners();
+    });
+
+    // 🌟 云端同步延迟到帧渲染完成后，确保 UI 已挂载
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      syncWithCloud();
+    });
   }
 
   @override
