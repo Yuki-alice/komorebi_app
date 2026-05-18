@@ -38,8 +38,6 @@ class TodosProvider with ChangeNotifier, WidgetsBindingObserver {
         loadTodos();
       }
     });
-    loadTodos();
-    syncWithCloud();
   }
 
   @override
