@@ -52,6 +52,7 @@ class _EditProfileSheetState extends State<EditProfileSheet> {
       return Image.file(
         vm.localSelectedImage!,
         fit: BoxFit.cover,
+        cacheWidth: 256,
         filterQuality: FilterQuality.high,
       );
     }
@@ -59,6 +60,7 @@ class _EditProfileSheetState extends State<EditProfileSheet> {
       return Image.file(
         File(auth.localAvatarPath!),
         fit: BoxFit.cover,
+        cacheWidth: 256,
         filterQuality: FilterQuality.high,
       );
     }
@@ -66,6 +68,7 @@ class _EditProfileSheetState extends State<EditProfileSheet> {
       return Image.network(
         auth.avatarUrl!,
         fit: BoxFit.cover,
+        cacheWidth: 256,
         filterQuality: FilterQuality.high,
       );
     }

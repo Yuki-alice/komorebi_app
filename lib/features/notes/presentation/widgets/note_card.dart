@@ -257,7 +257,8 @@ class _NoteCoverImageState extends State<NoteCoverImage> {
       return Image.file(
           _resolvedFile!,
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => Center(child: Icon(Icons.broken_image_rounded, color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5)))
+          cacheWidth: 600,
+          errorBuilder: (_, __, ___) => Center(child: Icon(Icons.broken_image_rounded, color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5))),
       );
     }
     return Container(color: Theme.of(context).colorScheme.surfaceContainerHighest);

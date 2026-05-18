@@ -308,6 +308,7 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
                                         fit: BoxFit.cover,
                                         width: double.infinity,
                                         height: double.infinity,
+                                        cacheWidth: 800,
                                       ),
                                     ),
                                     Positioned(

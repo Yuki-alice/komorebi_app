@@ -31,12 +31,14 @@ class DesktopSidebar extends StatelessWidget {
         return Image.file(
           File(authProvider.localAvatarPath!),
           fit: BoxFit.cover,
+          cacheWidth: 192,
           filterQuality: FilterQuality.high,
         );
       } else if (authProvider.avatarUrl != null) {
         return Image.network(
           authProvider.avatarUrl!,
           fit: BoxFit.cover,
+          cacheWidth: 192,
           filterQuality: FilterQuality.high,
         );
       } else {

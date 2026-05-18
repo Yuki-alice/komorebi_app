@@ -108,12 +108,14 @@ class _ProfileDashboardCardState extends State<ProfileDashboardCard> {
                         return Image.file(
                           File(auth.localAvatarPath!),
                           fit: BoxFit.cover,
+                          cacheWidth: 192,
                           filterQuality: FilterQuality.high,
                         );
                       } else if (auth.avatarUrl != null) {
                         return Image.network(
                           auth.avatarUrl!,
                           fit: BoxFit.cover,
+                          cacheWidth: 192,
                           filterQuality: FilterQuality.high,
                         );
                       } else {

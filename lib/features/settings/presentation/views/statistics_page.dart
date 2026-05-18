@@ -490,6 +490,7 @@ class _SimplePhotoViewerState extends State<_SimplePhotoViewer> {
               child: Image.file(
                 File(widget.imagePaths[index]),
                 fit: BoxFit.contain,
+                cacheWidth: 2560,
               ),
             ),
           );

@@ -405,6 +405,7 @@ class _InteractableImageState extends State<InteractableImage> {
       _resolvedFile!,
       fit: widget.isFullWidth ? BoxFit.fitWidth : BoxFit.contain,
       gaplessPlayback: true,
+      cacheHeight: 900,
     );
   }
 
@@ -643,7 +644,7 @@ class FullScreenImageViewer extends StatelessWidget {
                   tag: heroTag,
                   child:
                       imageFile != null
-                          ? Image.file(imageFile!, fit: BoxFit.contain)
+                          ? Image.file(imageFile!, fit: BoxFit.contain, cacheWidth: 2560)
                           : const Icon(
                             Icons.broken_image,
                             color: Colors.white,
