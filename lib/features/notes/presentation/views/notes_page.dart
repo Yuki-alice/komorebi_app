@@ -29,10 +29,14 @@ class NotesPage extends StatefulWidget {
   State<NotesPage> createState() => _NotesPageState();
 }
 
-class _NotesPageState extends State<NotesPage> with WidgetsBindingObserver, RouteAware {
+class _NotesPageState extends State<NotesPage>
+    with WidgetsBindingObserver, RouteAware, AutomaticKeepAliveClientMixin {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
   Timer? _debounce;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -146,6 +150,7 @@ class _NotesPageState extends State<NotesPage> with WidgetsBindingObserver, Rout
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final theme = Theme.of(context);
     final screenWidth = MediaQuery.of(context).size.width;
     final isDesktop = screenWidth >= 900;
